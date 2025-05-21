@@ -14,6 +14,8 @@ using System.Net.Sockets;
 using System.Text;
 using System.Threading;
 
+using CommandLineParser;
+
 namespace stream {
     class Program {
         
@@ -39,14 +41,65 @@ namespace stream {
         static Stream strm = Console.OpenStandardOutput();
         
         
-        public static void Main(string[] args) {
+        public static void Main(string[] args) {            
             byte[] dataOut = new byte[1024];
             int len2copy = 0;
-            int idx = 0;
+            bool status = true;
             
-            if(args.Length == 0) { printHelp(); return; }
+            Options opt = CommandLineParser.CommandLineParser.ParseArguments<Options>(args);
             
-            bool status = parseArgs(args);
+            if          ( opt.com != null ) {
+                if( opt.list != null ) {
+                    _Seerial_showAllPorts();
+                    return;
+                }
+                
+                status = parseComPort(opt);
+                if( !status ) { return; }
+                /* Correct parameters of COM port configuration */
+                
+                try {
+                    _sp.DataReceived += DataReceivedHandler;
+                    _sp.Open();
+                    _connectedWith = OpenedConnection.SerialPort;
+//                    _sp.BaseStream;
+                } catch (Exception ex){
+                    Console.WriteLine( "Could not open COM port" );
+                    Console.WriteLine(ex.Message);
+                    return;
+                }
+                status = true;
+                
+            } else if   ( opt.mudp != null ) {
+                status = parseMulticastUDP(opt);
+                
+                multicastAddr = IPAddress.Parse(_IPAddr);
+                localAddress = IPAddress.Any;
+                localEP = new IPEndPoint(localAddress, _IPPort);
+                remoteEP = new IPEndPoint(multicastAddr, _IPPort);
+                
+                udpClient = new UdpClient(AddressFamily.InterNetwork);
+                if( _UDPMulticats ) {
+                    // umozliwienie wielu aplikacjom dostępu do jednego portu
+                    udpClient.Client.SetSocketOption( SocketOptionLevel.Socket, SocketOptionName.ReuseAddress, true );
+                    udpClient.ExclusiveAddressUse = false;
+                    
+                    // podpięcie klienta do nasłuchiwania
+                    udpClient.Client.Bind(localEP);
+            
+                    // dołączenie do grupy multicastowej
+                    udpClient.JoinMulticastGroup(multicastAddr, localAddress);
+            
+                    // wskazanie metody obsługującej odbiór datagramu (jednorazowe)
+                    udpClient.BeginReceive( new AsyncCallback(ReceivedCallback), null );
+                    _connectedWith = OpenedConnection.UDP;
+                }
+                
+            } else {
+                return;
+            }
+            
+            
             Stream inStream = Console.OpenStandardInput();
             
             while(status) {
@@ -57,23 +110,11 @@ namespace stream {
             }
         }
         
-        static void printHelp() {
-            Console.WriteLine(
-                "stream\r\n" +
-                "\t-cp\r\n"+
-                "\t\t--name COM1\r\n"+
-                "\t\t--baud 115200 (default: 9600)\r\n"+
-                "\t\t--parity [None/Odd/Even/Mark/Space] (default: None)\r\n"+
-                "\t\t--dataBits ## (default: 8)\r\n"+
-                "\t\t--stopBits [None/One/Two/OnePointFive] (default: One)\r\n"+
-                "\r\n"+
-                "\t-udp [IPAddress:Port]\r\n"+
-                "\t\t--address #.#.#.#\r\n"+
-                "\t\t--port #\r\n"
-                );
-                
-//                stream -udp 127.0.0.1:16987
-//                stream -tcp 127.0.0.1:16987
+        static void _Seerial_showAllPorts() {
+            string[] ports = SerialPort.GetPortNames();
+            foreach(string portName in ports) {
+                Console.WriteLine(">" + portName);
+            }
         }
         
         
@@ -105,7 +146,7 @@ namespace stream {
                 // wskazanie metody obsługującej odbiór datagramu (jednorazowe),
                 // czyli tutaj akurat rekurencja do samej siebie
                 udpClient.BeginReceive(new AsyncCallback(ReceivedCallback), null);
-            } catch (Exception ex) {  }
+            } catch (Exception ex) { Console.Write(ex.Message); }
         }
         
         
@@ -128,49 +169,49 @@ namespace stream {
             bool status = false;
             if(args.Length == 0) { return false; }
             
-            if      ( args[0] == "--help" ) { printHelp(); return false; }
+            if      ( args[0] == "--help" ) { return false; }
             else if ( args[0] == "-cp"  ) {
-                status = parseComPort(args);
-                if( !status ) { return status; }
-                /* Correct parameters of COM port configuration */
-                
-                try {
-                    _sp.DataReceived += DataReceivedHandler;
-                    _sp.Open();
-                    _connectedWith = OpenedConnection.SerialPort;
-//                    _sp.BaseStream;
-                } catch (Exception ex){
-                    Console.WriteLine( "Could not open COM port" );
-                    Console.WriteLine(ex.Message);
-                    return false;
-                }
-                status = true;
+//                status = parseComPort(args);
+//                if( !status ) { return status; }
+//                /* Correct parameters of COM port configuration */
+//                
+//                try {
+//                    _sp.DataReceived += DataReceivedHandler;
+//                    _sp.Open();
+//                    _connectedWith = OpenedConnection.SerialPort;
+////                    _sp.BaseStream;
+//                } catch (Exception ex){
+//                    Console.WriteLine( "Could not open COM port" );
+//                    Console.WriteLine(ex.Message);
+//                    return false;
+//                }
+//                status = true;
             }
-            else if ( args[0] == "-tcp" ) { status = parseTCP(args); }
+            else if ( args[0] == "-tcp" ) { status = false; /*parseTCP(args);*/ }
             else if ( args[0] == "-udp" ) {
-                status = parseUDP(args);
-                
-                multicastAddr = IPAddress.Parse(_IPAddr);
-                localAddress = IPAddress.Any;
-                localEP = new IPEndPoint(localAddress, _IPPort);
-                remoteEP = new IPEndPoint(multicastAddr, _IPPort);
-                
-                udpClient = new UdpClient(AddressFamily.InterNetwork);
-                if( _UDPMulticats ) {
-                    // umozliwienie wielu aplikacjom dostępu do jednego portu
-                    udpClient.Client.SetSocketOption( SocketOptionLevel.Socket, SocketOptionName.ReuseAddress, true );
-                    udpClient.ExclusiveAddressUse = false;
-                    
-                    // podpięcie klienta do nasłuchiwania
-                    udpClient.Client.Bind(localEP);
-            
-                    // dołączenie do grupy multicastowej
-                    udpClient.JoinMulticastGroup(multicastAddr, localAddress);
-            
-                    // wskazanie metody obsługującej odbiór datagramu (jednorazowe)
-                    udpClient.BeginReceive( new AsyncCallback(ReceivedCallback), null );
-                    _connectedWith = OpenedConnection.UDP;
-                }
+//                status = parseUDP(args);
+//                
+//                multicastAddr = IPAddress.Parse(_IPAddr);
+//                localAddress = IPAddress.Any;
+//                localEP = new IPEndPoint(localAddress, _IPPort);
+//                remoteEP = new IPEndPoint(multicastAddr, _IPPort);
+//                
+//                udpClient = new UdpClient(AddressFamily.InterNetwork);
+//                if( _UDPMulticats ) {
+//                    // umozliwienie wielu aplikacjom dostępu do jednego portu
+//                    udpClient.Client.SetSocketOption( SocketOptionLevel.Socket, SocketOptionName.ReuseAddress, true );
+//                    udpClient.ExclusiveAddressUse = false;
+//                    
+//                    // podpięcie klienta do nasłuchiwania
+//                    udpClient.Client.Bind(localEP);
+//            
+//                    // dołączenie do grupy multicastowej
+//                    udpClient.JoinMulticastGroup(multicastAddr, localAddress);
+//            
+//                    // wskazanie metody obsługującej odbiór datagramu (jednorazowe)
+//                    udpClient.BeginReceive( new AsyncCallback(ReceivedCallback), null );
+//                    _connectedWith = OpenedConnection.UDP;
+//                }
                 
             }
             
@@ -178,71 +219,100 @@ namespace stream {
             
         }
         
-        static bool parseComPort(string[] args) {
-            string paramName = "";
+        
+        static string getSerialNameFromStrinng(string cpName) {
+            if( cpName.Length > 0 ) {
+                if( cpName.ToUpper().Contains("COM") ) {
+                    return cpName;
+                }
+                try {
+                    int comNumber = 0;
+                    comNumber = Convert.ToInt32(cpName);
+                    return "COM" + comNumber;
+                } catch (Exception ex) { Console.Write(ex.Message);}
+            }
+            return "";
+        }
+        
+        static bool parseComPort(Options opt) {
             string paramValue = "";
+            int stopBits = 0;
+            string portName = "";
             
             if( _sp == null ) { _sp = new SerialPort(); }
             if( _sp.IsOpen ) { _sp.Close(); }
             _sp.Dispose();
             _sp = new SerialPort();
             
-            for( int i = 1; i < args.Length; i += 2 ) {
-                if( args.Length <= (i + 1) ) {
-                    Console.WriteLine("Missing value for parameter '" + args[i] + "'");
-                    return false;
-                }
-                
-                paramName = args[i].ToLower();
-                paramValue = args[i+1];
-                
-                
-                if      ( paramName == "--name" ) { _sp.PortName = paramValue; }
-                else if ( paramName == "--baud" ) {
-                    try {
-                        _sp.BaudRate = Convert.ToInt32(paramValue);
-                    } catch {
-                        Console.WriteLine("Incorrect value for '--baud': {" + paramValue + "}");
-                        return false;
-                    }
-                }
-                else if ( paramName == "--parity" ) {
-                    paramValue = paramValue.ToLower();
-                    if      ( paramValue == "none"  ) { _sp.Parity = Parity.None;  }
-                    else if ( paramValue == "odd"   ) { _sp.Parity = Parity.Odd;   }
-                    else if ( paramValue == "even"  ) { _sp.Parity = Parity.Even;  }
-                    else if ( paramValue == "mark"  ) { _sp.Parity = Parity.Mark;  }
-                    else if ( paramValue == "space" ) { _sp.Parity = Parity.Space; }
-                    else { Console.WriteLine("Incorrect value for '--parity': {" + args[i+1] + "}"); return false; }
-                }
-                else if ( paramName == "--databits" ) {
-                    try {
-                        _sp.DataBits = Convert.ToInt32(paramValue);
-                    } catch {
-                        Console.WriteLine("Incorrect value for '--dataBits': {" + paramValue + "}");
-                        return false;
-                    }
-                }
-                else if ( paramName == "--stopbits" ) {
-                    paramValue = paramValue.ToLower();
-                    if      ( paramValue == "none"          ) { _sp.StopBits = StopBits.None;           }
-                    else if ( paramValue == "one"           ) { _sp.StopBits = StopBits.One;            }
-                    else if ( paramValue == "two"           ) { _sp.StopBits = StopBits.Two;            }
-                    else if ( paramValue == "onepointfive"  ) { _sp.StopBits = StopBits.OnePointFive;   }
-                    else { Console.WriteLine("Incorrect value for '--stopBits': {" + args[i+1] + "}"); return false;}
-                } else { Console.WriteLine( "Incorrect parameter: '" + args[i] + "'" ); return false; }
+            
+            if( opt.com != null ) {
+                portName = getSerialNameFromStrinng(opt.com);
             }
             
+            if( opt.name != null ) {
+                portName = getSerialNameFromStrinng(opt.name);
+            }
+            
+            try {
+                _sp.PortName = portName;
+            } catch (Exception ex) { Console.Write(ex.Message); return false; }
+            
+            if( opt.baud != null ) {
+                try {
+                    _sp.BaudRate = Convert.ToInt32(opt.baud);
+                } catch {
+                    Console.WriteLine("Incorrect value for '--baud': {" + opt.baud + "}");
+                    return false;
+                }
+            }
+            
+            if( opt.parity != null ) {
+                paramValue = opt.parity.ToLower();
+                if      ( paramValue == "none"  ) { _sp.Parity = Parity.None;  }
+                else if ( paramValue == "odd"   ) { _sp.Parity = Parity.Odd;   }
+                else if ( paramValue == "even"  ) { _sp.Parity = Parity.Even;  }
+                else if ( paramValue == "mark"  ) { _sp.Parity = Parity.Mark;  }
+                else if ( paramValue == "space" ) { _sp.Parity = Parity.Space; }
+                else {
+                    Console.WriteLine("Incorrect value for '--parity': {" + opt.parity + "}");
+                    return false;
+                }
+            }
+            
+            if( opt.dataBits != null ) {
+                try {
+                    _sp.DataBits = Convert.ToInt32(opt.dataBits);
+                } catch {
+                    Console.WriteLine("Incorrect value for '--dataBits': {" + opt.dataBits + "}");
+                    return false;
+                }
+            }
+            
+            if( opt.stopBits != null ) {
+                paramValue = opt.stopBits.ToLower();
+                if      ( paramValue == "none"          ) { _sp.StopBits = StopBits.None;           }
+                else if ( paramValue == "one"           ) { _sp.StopBits = StopBits.One;            }
+                else if ( paramValue == "two"           ) { _sp.StopBits = StopBits.Two;            }
+                else if ( paramValue == "onepointfive"  ) { _sp.StopBits = StopBits.OnePointFive;   }
+                else {
+                    try {
+                        stopBits = Convert.ToInt32(opt.stopBits);
+                        if      ( stopBits == 0         ) { _sp.StopBits = StopBits.None;           }
+                        else if ( stopBits == 1         ) { _sp.StopBits = StopBits.One;            }
+                        else if ( stopBits == 2         ) { _sp.StopBits = StopBits.Two;            }
+                        else if ( opt.stopBits == "1.5" ) { _sp.StopBits = StopBits.OnePointFive;   }
+                    } catch {
+                        Console.WriteLine("Incorrect value for '--stopBits': {" + opt.stopBits + "}");
+                        return false;
+                    }
+                }
+            }            
+
             return true;
         }
         
-        static bool parseTCP(string[] args) {
-            return false;
-        }
         
-        static bool parseUDP(string[] args) {
-            string paramName = "";
-            string paramValue = "";
+        static bool parseMulticastUDP(Options opt) {
             
             if( _sp == null ) { _sp = new SerialPort(); }
             if( _sp.IsOpen ) { _sp.Close(); }
@@ -250,40 +320,38 @@ namespace stream {
             _sp = new SerialPort();
             _sp.DataReceived += DataReceivedHandler;
             
-            for( int i = 1; i < args.Length; i += 2 ) {
-                
-                if( args[i].Contains(":") ) {
-                    try {
-                        string[] parts = args[i].Split(':');
-                        _IPAddr = parts[0];
-                        _IPPort = Convert.ToInt32(parts[1]);
-                        i++;
-                        continue;
-                    } catch {
-                        Console.WriteLine("Error durign IPAddress parsing!");
-                        return false;
+            
+            if( opt.mudp != null ) {
+                if( opt.mudp.Length > 0 ) {
+                    if( opt.mudp.Contains(":") ) {
+                        try {
+                            string[] parts = opt.mudp.Split(':');
+                            _IPAddr = parts[0];
+                            _IPPort = Convert.ToInt32(parts[1]);
+                        } catch {
+                            Console.WriteLine("Error durign IPAddress parsing!");
+                            return false;
+                        }
                     }
                 }
-                
-                if( args.Length <= (i + 1) ) {
-                    Console.WriteLine("Missing value for parameter '" + args[i] + "'");
+            }
+            
+            if( opt.address != null ) {
+                if( opt.address.Length > 0 ) {
+                    _IPAddr = opt.address;
+                } else {
+                    Console.WriteLine("Invalid IPv4 address!");
                     return false;
                 }
-                
-                paramName = args[i].ToLower();
-                paramValue = args[i+1];
-                
-                
-                if      ( paramName == "--address" ) { _IPAddr = paramValue; }
-                else if ( paramName == "--port" ) {
-                    try {
-                        _IPPort = Convert.ToInt32(paramValue);
-                    } catch {
-                        Console.WriteLine("Incorrect value for '--port': {" + paramValue + "}");
-                        return false;
-                    }
+            }
+            
+            if( opt.port != null ) {
+                try {
+                    _IPPort = Convert.ToInt32(opt.port);
+                } catch {
+                    Console.WriteLine("Incorrect value for '--port': {" + opt.port + "}");
+                    return false;
                 }
-                else { Console.WriteLine( "Incorrect parameter: '" + args[i] + "'" ); return false; }
             }
             
             return true;

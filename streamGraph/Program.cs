@@ -57,8 +57,6 @@ namespace streamGraph {
 //                }
 //            }
             
-            
-            Console.ReadKey(true);
         }
         
     }

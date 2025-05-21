@@ -114,8 +114,6 @@ namespace streamGraph {
         }
         
         
-        
-        int cntr1 = 0;
         void tim1_tick(object sender, EventArgs e) {
             Text = _graphName + " : " +  _lastValue;
             plot1.Draw();

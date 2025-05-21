@@ -16,6 +16,11 @@
  
  
  
+ 
+ 
+ 
+    <RunCodeAnalysis>False</RunCodeAnalysis>
+
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Platform)' == 'AnyCPU' ">
     <PlatformTarget>x86</PlatformTarget>
@@ -33,7 +38,7 @@
     <DefineConstants>DEBUG;TRACE</DefineConstants>
  
 
-    <StartArguments>-udp 230.0.0.2:16980</StartArguments>
+    <StartArguments>-cp</StartArguments>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
     <OutputPath>bin\Release\</OutputPath>
@@ -44,6 +49,9 @@
     <DefineConstants>TRACE</DefineConstants>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="CommandLineParser">
+      <HintPath>..\CommandLineParser.dll</HintPath>
+    </Reference>
     <Reference Include="Microsoft.CSharp">
       <RequiredTargetFramework>4.0</RequiredTargetFramework>
     </Reference>
@@ -61,6 +69,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Options.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
