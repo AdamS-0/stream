@@ -123,74 +123,88 @@ namespace stream {
         }
         
         static void _Seerial_showAllPorts2() {
+            string CL_RESET = "\x1B[0m";
+            string CL_RED   = "\x1B[31m";
+            string CL_GREEN = "\x1B[32m";
+            
+            
+            string spName           = "";
+            string spDescription    = "";
+            string spManufacturer   = "";
+            string spDeviceID       = "";
+            
             List<SerialPortConnInfo> conns = new List<SerialPortConnInfo>();
+            
+            // Get all serial (COM)-ports you can see in the devicemanager
+            ManagementObjectSearcher searcher = new ManagementObjectSearcher("root\\cimv2", "select * from Win32_SerialPort");
+        
+        
+            // Add all available (COM)-ports to the combobox
+            foreach (ManagementObject queryObj in searcher.Get()) {
+                try{ spName         = (queryObj["DeviceID"      ]).ToString(); } catch { spName = ""; }
+                try{ spDescription  = (queryObj["Description"   ]).ToString(); } catch { spDescription = ""; }
+                try{ spManufacturer = (queryObj["Manufacturer"  ]).ToString(); } catch { spManufacturer = ""; }
+                try{ spDeviceID     = (queryObj["PNPDeviceID"   ]).ToString(); } catch { spDeviceID = ""; }
+                
+                conns.Add( new SerialPortConnInfo(spName, spDescription, spManufacturer, spDeviceID) );
+            }
+            
             
             using (ManagementClass i_Entity = new ManagementClass("Win32_PnPEntity")) {
                 const String CUR_CTRL = "HKEY_LOCAL_MACHINE\\System\\CurrentControlSet\\";
             
-                foreach (ManagementObject i_Inst in i_Entity.GetInstances()) {
-                    Object o_Guid = i_Inst.GetPropertyValue("ClassGuid");
+                foreach (ManagementObject queryObj in i_Entity.GetInstances()) {
+                    Object o_Guid = queryObj.GetPropertyValue("ClassGuid");
                     if (o_Guid == null || o_Guid.ToString().ToUpper() != "{4D36E978-E325-11CE-BFC1-08002BE10318}") continue; // Skip all devices except device class "PORTS"
-            
-                    String s_Caption = i_Inst.GetPropertyValue("Caption").ToString();
-                    String s_Manufact = i_Inst.GetPropertyValue("Manufacturer").ToString();
-                    String s_DeviceID = i_Inst.GetPropertyValue("PnpDeviceID").ToString();
-                    String s_RegEnum = CUR_CTRL + "Enum\\" + s_DeviceID + "\\Device Parameters";
-                    String s_RegServ = CUR_CTRL + "Services\\BTHPORT\\Parameters\\Devices\\";
-                    String s_PortName = Registry.GetValue(s_RegEnum, "PortName", "").ToString();
-                    String s_BT_Dir = null; // Bluetooth port direction
-                    String s_BT_Dev = "";   // Bluetooth paired device name
-                    String s_BT_MAC = "";   // Bluetooth paired device MAC address
-            
-                    int s32_Pos = s_Caption.IndexOf(" (COM");
-                    if (s32_Pos > 0) // remove COM port from description
-                        s_Caption = s_Caption.Substring(0, s32_Pos);
-            
-                    conns.Add( new SerialPortConnInfo(s_PortName, s_Caption, s_Manufact, s_DeviceID) );
                     
+                    try{ spDescription  = (queryObj["Caption"       ]).ToString(); } catch { spDescription = ""; }
+                    try{ spDeviceID     = (queryObj["PNPDeviceID"   ]).ToString(); } catch { spDeviceID = ""; }
+                    try{ spManufacturer = (queryObj["Manufacturer"  ]).ToString(); } catch { spManufacturer = ""; }
                     
-//                    if (s_DeviceID.StartsWith("BTHENUM\\")) { // Bluetooth
-//                        s_BT_Dir = "Incoming";
-//            
-//                        // "{00001101-0000-1000-8000-00805f9b34fb}#7445CEA614BC_C00000000"
-//                        String s_UniqueID = Registry.GetValue(s_RegEnum, "Bluetooth_UniqueID", "").ToString();
-//            
-//                        String[] s_Split = s_UniqueID.Split('#');
-//                        if (s_Split.Length == 2) {
-//                            s_Split = s_Split [ 1 ].Split('_');
-//            
-//                            // Ignore MAC = "000000000000"
-//                            if (s_Split.Length == 2 && s_Split [ 0 ].Trim('0').Length > 0) {
-//                                s_BT_MAC = s_Split [ 0 ]; // 12 digits: "7445CEA614BC"
-//                                s_BT_Dir = "Outgoing";
-//            
-//                                // Read the Bluetooth device that is paired with the COM port.
-//                                Object o_BtDevice = Registry.GetValue(s_RegServ + s_BT_MAC, "Name", null);
-//                                if (o_BtDevice is Byte[]) s_BT_Dev = Encoding.UTF8.GetString((Byte[])o_BtDevice);
-//                            }
-//                        }
-//            
-//                        Console.WriteLine("Port Direction: " + s_BT_Dir);
-//                        Console.WriteLine("Paired Device:  " + s_BT_Dev);
-//                        Console.WriteLine("Device MAC Adr: " + s_BT_MAC);
-//                    }
+                    String s_Manufact = queryObj.GetPropertyValue("Manufacturer").ToString();
+                    String s_RegEnum = CUR_CTRL + "Enum\\" + spDeviceID + "\\Device Parameters";
+                    spName = Registry.GetValue(s_RegEnum, "PortName", "").ToString();
+                    
+                    int s32_Pos = spDescription.IndexOf(" (COM");
+                    if (s32_Pos > 0) {
+                        // remove COM port from description
+                        spDescription = spDescription.Substring(0, s32_Pos);
+                    }
+                    
+                    conns.Add( new SerialPortConnInfo(spName, spDescription, spManufacturer, spDeviceID) );
+                    
                 }
-                
-                
-                Console.WriteLine("{0,-" + SerialPortConnInfo.maxSizeName + "}  " + 
-                                  "{1,-" + SerialPortConnInfo.maxSizeDesc + "}  " + 
+            }
+            
+            
+            try {
+                Console.WriteLine("{0,-" + SerialPortConnInfo.maxSizeName + "}  " +
+                                  "{1,-" + SerialPortConnInfo.maxSizeDesc + "}  " +
                                   "{2,-" + SerialPortConnInfo.maxSizeManuf + "}  " + 
                                   "{3,-" + SerialPortConnInfo.maxSizeDevID + "}",
                                   "Name", "Description", "Manufacturer", "Device ID");
+                
+                conns.Sort((x, y) => x.Name.CompareTo(y.Name));
+                
                 foreach( SerialPortConnInfo ci in conns ) {
-                        Console.WriteLine(
-                                    "{0," + SerialPortConnInfo.maxSizeName + "}  " +
-                                    "{1," + SerialPortConnInfo.maxSizeDesc + "}  " + 
-                                    "{2," + SerialPortConnInfo.maxSizeManuf + "}  " + 
-                                    "{3," + SerialPortConnInfo.maxSizeDevID + "}",
-                                    ci.Name, ci.Description, ci.Manufacturer, ci.DevID);
+                    bool portInUse = true;
+                    SerialPort spi = new SerialPort();
+                    spi.PortName = ci.Name;
+                    
+                    try {
+                        spi.Open();
+                        portInUse = false;
+                        spi.Close();
+                    } catch {}
+                    
+                    Console.WriteLine(
+                       "{0,-" + SerialPortConnInfo.maxSizeName + "}  " +
+                       "{1,-" + SerialPortConnInfo.maxSizeDesc + "}  " + 
+                       "{2,-" + SerialPortConnInfo.maxSizeManuf + "}  " + 
+                       "{3,-" + SerialPortConnInfo.maxSizeDevID + "}",
+                       (portInUse ? CL_RED : CL_GREEN) + ci.Name + CL_RESET, ci.Description, ci.Manufacturer, ci.DevID);
                 }
-            }
+            } catch {}
         }
         
         private static void DataReceivedHandler(object sender, SerialDataReceivedEventArgs e) {
