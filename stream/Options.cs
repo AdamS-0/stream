@@ -7,10 +7,25 @@
  * To change this template use Tools | Options | Coding | Edit Standard Headers.
  */
 using System;
+using System.Reflection;
 using CommandLineParser;
 
 namespace stream {
+    
+    [AppInfo(
+        AppName = AppInfo.Name,
+        AppVersion = AppInfo.Version,
+        AppAuthor = AppInfo.Author,
+        AppDescription = AppInfo.Description)]
     public class Options {
+        [Parameter(ParameterAlias = "as", HelpText = "Alias for stream settings",
+                   ArgumentName = "name", ArgumentRequired = false)]
+        public string alias { get; set; }
+        
+        [Parameter(ParameterAlias = "r", HelpText = "Try to reconnect",
+                   ArgumentName = "timeout ms", ArgumentRequired = false)]
+        public string reconnect { get; set; }
+        
         
         [Parameter(ParameterAlias = "c", HelpText = "Serial port connection",
                    ArgumentName = "COM port", ArgumentRequired = false)]
@@ -42,21 +57,34 @@ namespace stream {
         public string list { get; set; }
         
         
-//        [Parameter(ParameterAlias = "t", HelpText = "TCP client/server",
-//            ArgumentName = "address:port", ArgumentRequired = false)]
-//        public string tcp { get; set; }
+        [Parameter(ParameterAlias = "t", HelpText = "TCP client/server",
+            ArgumentName = "address:port", ArgumentRequired = false)]
+        public string tcp { get; set; }
         
         [Parameter(ParameterAlias = "mudp", HelpText = "Multicast UDP client",
                    ArgumentName = "address:port", ArgumentRequired = false)]
         public string mudp { get; set; }
         
+        [Parameter(ParameterAlias = "u", HelpText = "UDP connection",
+                   ArgumentName = "address:port", ArgumentRequired = false)]
+        public string udp { get; set; }
+        
         [Parameter(ParameterAlias = "a", HelpText = "IPv4 address",
-                   ArgumentRequired = false)]
+                   ArgumentName = "address", ArgumentRequired = false)]
         public string address { get; set; }
         
         [Parameter(ParameterAlias = "p", HelpText = "IPv4 port",
-                   ArgumentRequired = false)]
+                   ArgumentName = "port", ArgumentRequired = false)]
         public string port { get; set; }
+        
+        [Parameter(ParameterAlias = "cl", HelpText = "Connect as Client",
+                   ArgumentRequired = false)]
+        public string client { get; set; }
+        
+        [Parameter(ParameterAlias = "sv", HelpText = "Connect as Server",
+                   ArgumentRequired = false)]
+        public string server { get; set; }
+
         
     }
 }

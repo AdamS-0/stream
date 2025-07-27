@@ -38,7 +38,7 @@
     <DefineConstants>DEBUG;TRACE</DefineConstants>
  
 
-    <StartArguments>-c -l</StartArguments>
+    <StartArguments>-as -l</StartArguments>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
     <OutputPath>bin\Release\</OutputPath>
@@ -70,9 +70,17 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Alias.cs" />
+    <Compile Include="AppInfo.cs" />
+    <Compile Include="Connection.cs" />
+    <Compile Include="ConnMulticastUDP.cs" />
+    <Compile Include="ConnSerialPort.cs" />
+    <Compile Include="ConnTCP.cs" />
+    <Compile Include="ConnUDP.cs" />
     <Compile Include="Options.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="SerialPortUtils.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />
