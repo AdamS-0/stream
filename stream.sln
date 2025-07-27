@@ -14,6 +14,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "tsNow", "tsNow\tsNow.csproj
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "streamGraph", "streamGraph\streamGraph.csproj", "{56655CF0-DE62-43BB-9FFB-6A17633BB4D0}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "regHex", "regHex\regHex.csproj", "{1BFE462C-5D21-4114-B839-6D8E72B44A40}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -44,5 +46,9 @@ Global
 		{56655CF0-DE62-43BB-9FFB-6A17633BB4D0}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{56655CF0-DE62-43BB-9FFB-6A17633BB4D0}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{56655CF0-DE62-43BB-9FFB-6A17633BB4D0}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1BFE462C-5D21-4114-B839-6D8E72B44A40}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1BFE462C-5D21-4114-B839-6D8E72B44A40}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1BFE462C-5D21-4114-B839-6D8E72B44A40}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1BFE462C-5D21-4114-B839-6D8E72B44A40}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

@@ -16,7 +16,9 @@ namespace stream {
     public class AppInfo {
         
         public const string Name = "stream";
-        public const string Version = "1.0.1";
+        public const string Version = "1.0.1." + vn.BUILD_NUM + "_" +
+            vn.BUILD_YEAR + vn.BUILD_MON + vn.BUILD_DAY + "." +
+            vn.BUILD_HOUR + vn.BUILD_MIN;
         public const string Author = "AdamS-0 2025";
         public const string Description = "Simple application for stream IN/OUT operations";
         

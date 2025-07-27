@@ -61,7 +61,7 @@ namespace stream {
             ArgumentName = "address:port", ArgumentRequired = false)]
         public string tcp { get; set; }
         
-        [Parameter(ParameterAlias = "mudp", HelpText = "Multicast UDP client",
+        [Parameter(ParameterAlias = "m", HelpText = "Multicast UDP client",
                    ArgumentName = "address:port", ArgumentRequired = false)]
         public string mudp { get; set; }
         
