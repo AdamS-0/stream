@@ -25,7 +25,7 @@ namespace streamNode {
             ConnPanel cp = new ConnPanel();
             
             cp.Dock = DockStyle.Top;
-            Controls.Add(cp);
+            pConns.Controls.Add(cp);
             
             cp.DataReceived += delegate (ref byte[] dataOut, int dataLen) {
                 DataReceived(cp, ref dataOut, dataLen);
@@ -36,9 +36,7 @@ namespace streamNode {
         
         public MainForm() {
             InitializeComponent();
-            addNewConn();
-            addNewConn();
-            addNewConn();
+
         }
         
         void DataReceived(object sender, ref byte[] dataOut, int dataLen) {
@@ -76,6 +74,10 @@ namespace streamNode {
             foreach( ConnPanel cp in conns ) {
                 cp.Close();
             }
+        }
+        
+        void ToolStripLabel2Click(object sender, EventArgs e) {
+            addNewConn();
         }
         
 

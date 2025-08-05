@@ -31,6 +31,8 @@ namespace streamNode {
         System.Windows.Forms.Timer timerStatus = new System.Windows.Forms.Timer();
         Process pr = new Process();
         
+        Terminal trm = null;
+        
         public ConnPanel() {
             InitializeComponent();
             timerStatus.Tick += timerStatus_tick;
@@ -77,16 +79,19 @@ namespace streamNode {
         void open() {
             opt  = new stream.Options();
             getOptionsFromGUI( ref opt );
-            string args = "";
+            string args = getStrArgsFromOptions(opt);
             
+            txtBxCfg.Text = args;
             pr.StartInfo.FileName = "stream.exe";
-            pr.StartInfo.Arguments = getStrArgsFromOptions(opt);
+            pr.StartInfo.Arguments = args;
             pr.StartInfo.UseShellExecute = false;
             pr.StartInfo.RedirectStandardInput = true;
             pr.StartInfo.RedirectStandardOutput = true;
             pr.StartInfo.CreateNoWindow = true;
             pr.EnableRaisingEvents = true;
             
+            
+                
             if( pr.Start() ) {
                 btnOpen.Text = "Close";
                 procWorking = true;
@@ -143,9 +148,15 @@ namespace streamNode {
             using(StreamReader sr = pr.StandardOutput) {
                 while( procWorking ) {
                     Thread.Sleep(10);
+                    if( !CanRead() ) { continue; }
                     while ((len2copy = sr.BaseStream.Read(dataIn, 0, 1024)) > 0) {
                         if( this.DataReceived == null ) { return; }
                         this.DataReceived( ref dataIn, len2copy );
+                        if ( trm != null ) {
+                            if ( trm.IsHandleCreated ) {
+                                trm.AppendText(System.Text.Encoding.GetEncoding("windows-1256").GetString(dataIn, 0, len2copy));
+                            }
+                        }
                         len2copy = 0;
                     }
                 }
@@ -173,9 +184,15 @@ namespace streamNode {
         
         
         
+        void getConfigurationToTxtBx() {
+            getOptionsFromGUI( ref opt );
+            txtBxCfg.Text = getStrArgsFromOptions( opt );
+        }
         
         
         void getOptionsFromGUI(ref stream.Options opts) {
+            opts = new stream.Options();
+            
             if      ( rdBtnSerial.Checked   ) { getOptionsFromGUI_Ser(ref opts); }
             else if ( rdBtnTCP.Checked      ) { getOptionsFromGUI_TCP(ref opts); }
             else if ( rdBtnUDP.Checked      ) { getOptionsFromGUI_UDP(ref opts); }
@@ -294,6 +311,36 @@ namespace streamNode {
           
         }
         
+        
+        void BtnCfgGetClick(object sender, EventArgs e) {
+            getConfigurationToTxtBx();
+        }
+        
+        void BtnCfgSetClick(object sender, EventArgs e) {
+          
+        }
+        
+        
+        
+        void BtnTerminalClick(object sender, EventArgs e) {
+            if( trm == null || !trm.IsHandleCreated ) {
+                trm = new Terminal();
+                trm.SendDataFromTerminal += sendDataFromTerminal;
+                trm.Text = txtBxName.Text + " - " + txtBxCfg.Text;
+            }
+            
+            trm.Show();
+            trm.BringToFront();
+        }
+        
+        void sendDataFromTerminal(string msg) {
+            try {
+                if( CanWrite() ) {
+                    pr.StandardInput.Write(msg);
+                }
+            } catch { }
+        }
+
         
     }
 }

@@ -24,7 +24,7 @@ namespace streamNode
         private System.Windows.Forms.CheckBox chkBxRead;
         private System.Windows.Forms.Button btnOpen;
         private System.Windows.Forms.GroupBox groupBox1;
-        private System.Windows.Forms.TextBox textBox1;
+        private System.Windows.Forms.TextBox txtBxName;
         private System.Windows.Forms.Panel pConnSerial;
         private System.Windows.Forms.GroupBox grpBxParity;
         private System.Windows.Forms.RadioButton rdBtnParity_Space;
@@ -80,6 +80,12 @@ namespace streamNode
         private System.Windows.Forms.TextBox txtBxMultPort;
         private System.Windows.Forms.Label label8;
         private System.Windows.Forms.Panel pCfg;
+        private System.Windows.Forms.GroupBox grpBxCfgArgsLine;
+        private System.Windows.Forms.Button btnDelete;
+        private System.Windows.Forms.TextBox txtBxCfg;
+        private System.Windows.Forms.Button btnCfgGet;
+        private System.Windows.Forms.Button btnCfgSet;
+        private System.Windows.Forms.Button btnTerminal;
         
         /// <summary>
         /// Disposes resources used by the control.
@@ -108,11 +114,13 @@ namespace streamNode
             this.rdBtnTCP = new System.Windows.Forms.RadioButton();
             this.rdBtnSerial = new System.Windows.Forms.RadioButton();
             this.pConnInfo = new System.Windows.Forms.Panel();
+            this.btnDelete = new System.Windows.Forms.Button();
             this.chkBxWrite = new System.Windows.Forms.CheckBox();
             this.chkBxRead = new System.Windows.Forms.CheckBox();
+            this.btnTerminal = new System.Windows.Forms.Button();
             this.btnOpen = new System.Windows.Forms.Button();
             this.groupBox1 = new System.Windows.Forms.GroupBox();
-            this.textBox1 = new System.Windows.Forms.TextBox();
+            this.txtBxName = new System.Windows.Forms.TextBox();
             this.pConnSerial = new System.Windows.Forms.Panel();
             this.grpBxParity = new System.Windows.Forms.GroupBox();
             this.rdBtnParity_Space = new System.Windows.Forms.RadioButton();
@@ -168,6 +176,10 @@ namespace streamNode
             this.txtBxMultAdr = new System.Windows.Forms.TextBox();
             this.label7 = new System.Windows.Forms.Label();
             this.pCfg = new System.Windows.Forms.Panel();
+            this.grpBxCfgArgsLine = new System.Windows.Forms.GroupBox();
+            this.txtBxCfg = new System.Windows.Forms.TextBox();
+            this.btnCfgSet = new System.Windows.Forms.Button();
+            this.btnCfgGet = new System.Windows.Forms.Button();
             this.grpBxConnType.SuspendLayout();
             this.pConnInfo.SuspendLayout();
             this.groupBox1.SuspendLayout();
@@ -190,6 +202,7 @@ namespace streamNode
             this.pMultPort.SuspendLayout();
             this.pMultAdr.SuspendLayout();
             this.pCfg.SuspendLayout();
+            this.grpBxCfgArgsLine.SuspendLayout();
             this.SuspendLayout();
             // 
             // grpBxConnType
@@ -202,7 +215,7 @@ namespace streamNode
             this.grpBxConnType.Location = new System.Drawing.Point(0, 0);
             this.grpBxConnType.Name = "grpBxConnType";
             this.grpBxConnType.Padding = new System.Windows.Forms.Padding(6, 3, 3, 3);
-            this.grpBxConnType.Size = new System.Drawing.Size(83, 116);
+            this.grpBxConnType.Size = new System.Drawing.Size(83, 117);
             this.grpBxConnType.TabIndex = 2;
             this.grpBxConnType.TabStop = false;
             this.grpBxConnType.Text = "Type";
@@ -258,23 +271,35 @@ namespace streamNode
             // 
             // pConnInfo
             // 
+            this.pConnInfo.Controls.Add(this.btnDelete);
             this.pConnInfo.Controls.Add(this.chkBxWrite);
             this.pConnInfo.Controls.Add(this.chkBxRead);
+            this.pConnInfo.Controls.Add(this.btnTerminal);
             this.pConnInfo.Controls.Add(this.btnOpen);
             this.pConnInfo.Controls.Add(this.groupBox1);
             this.pConnInfo.Dock = System.Windows.Forms.DockStyle.Left;
             this.pConnInfo.Location = new System.Drawing.Point(3, 0);
             this.pConnInfo.Name = "pConnInfo";
             this.pConnInfo.Padding = new System.Windows.Forms.Padding(6, 0, 3, 3);
-            this.pConnInfo.Size = new System.Drawing.Size(94, 116);
+            this.pConnInfo.Size = new System.Drawing.Size(94, 158);
             this.pConnInfo.TabIndex = 3;
+            // 
+            // btnDelete
+            // 
+            this.btnDelete.Dock = System.Windows.Forms.DockStyle.Top;
+            this.btnDelete.Location = new System.Drawing.Point(6, 131);
+            this.btnDelete.Name = "btnDelete";
+            this.btnDelete.Size = new System.Drawing.Size(85, 23);
+            this.btnDelete.TabIndex = 5;
+            this.btnDelete.Text = "Delete";
+            this.btnDelete.UseVisualStyleBackColor = true;
             // 
             // chkBxWrite
             // 
             this.chkBxWrite.Checked = true;
             this.chkBxWrite.CheckState = System.Windows.Forms.CheckState.Checked;
             this.chkBxWrite.Dock = System.Windows.Forms.DockStyle.Top;
-            this.chkBxWrite.Location = new System.Drawing.Point(6, 86);
+            this.chkBxWrite.Location = new System.Drawing.Point(6, 109);
             this.chkBxWrite.Name = "chkBxWrite";
             this.chkBxWrite.Size = new System.Drawing.Size(85, 22);
             this.chkBxWrite.TabIndex = 2;
@@ -286,12 +311,23 @@ namespace streamNode
             this.chkBxRead.Checked = true;
             this.chkBxRead.CheckState = System.Windows.Forms.CheckState.Checked;
             this.chkBxRead.Dock = System.Windows.Forms.DockStyle.Top;
-            this.chkBxRead.Location = new System.Drawing.Point(6, 64);
+            this.chkBxRead.Location = new System.Drawing.Point(6, 87);
             this.chkBxRead.Name = "chkBxRead";
             this.chkBxRead.Size = new System.Drawing.Size(85, 22);
             this.chkBxRead.TabIndex = 1;
             this.chkBxRead.Text = "Allow IN";
             this.chkBxRead.UseVisualStyleBackColor = true;
+            // 
+            // btnTerminal
+            // 
+            this.btnTerminal.Dock = System.Windows.Forms.DockStyle.Top;
+            this.btnTerminal.Location = new System.Drawing.Point(6, 64);
+            this.btnTerminal.Name = "btnTerminal";
+            this.btnTerminal.Size = new System.Drawing.Size(85, 23);
+            this.btnTerminal.TabIndex = 6;
+            this.btnTerminal.Text = "Terminal";
+            this.btnTerminal.UseVisualStyleBackColor = true;
+            this.btnTerminal.Click += new System.EventHandler(this.BtnTerminalClick);
             // 
             // btnOpen
             // 
@@ -306,7 +342,7 @@ namespace streamNode
             // 
             // groupBox1
             // 
-            this.groupBox1.Controls.Add(this.textBox1);
+            this.groupBox1.Controls.Add(this.txtBxName);
             this.groupBox1.Dock = System.Windows.Forms.DockStyle.Top;
             this.groupBox1.Location = new System.Drawing.Point(6, 0);
             this.groupBox1.Name = "groupBox1";
@@ -315,13 +351,13 @@ namespace streamNode
             this.groupBox1.TabStop = false;
             this.groupBox1.Text = "Name:";
             // 
-            // textBox1
+            // txtBxName
             // 
-            this.textBox1.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.textBox1.Location = new System.Drawing.Point(3, 16);
-            this.textBox1.Name = "textBox1";
-            this.textBox1.Size = new System.Drawing.Size(79, 20);
-            this.textBox1.TabIndex = 0;
+            this.txtBxName.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.txtBxName.Location = new System.Drawing.Point(3, 16);
+            this.txtBxName.Name = "txtBxName";
+            this.txtBxName.Size = new System.Drawing.Size(79, 20);
+            this.txtBxName.TabIndex = 0;
             // 
             // pConnSerial
             // 
@@ -334,7 +370,7 @@ namespace streamNode
             this.pConnSerial.Dock = System.Windows.Forms.DockStyle.Left;
             this.pConnSerial.Location = new System.Drawing.Point(83, 0);
             this.pConnSerial.Name = "pConnSerial";
-            this.pConnSerial.Size = new System.Drawing.Size(382, 116);
+            this.pConnSerial.Size = new System.Drawing.Size(382, 117);
             this.pConnSerial.TabIndex = 4;
             this.pConnSerial.Visible = false;
             // 
@@ -362,7 +398,6 @@ namespace streamNode
             this.rdBtnParity_Space.TabIndex = 5;
             this.rdBtnParity_Space.Text = "Space";
             this.rdBtnParity_Space.UseVisualStyleBackColor = true;
-            this.rdBtnParity_Space.CheckedChanged += new System.EventHandler(this.RdBtnSerParity_CheckedChanged);
             // 
             // rdBtnParity_Mark
             // 
@@ -373,7 +408,6 @@ namespace streamNode
             this.rdBtnParity_Mark.TabIndex = 4;
             this.rdBtnParity_Mark.Text = "Mark";
             this.rdBtnParity_Mark.UseVisualStyleBackColor = true;
-            this.rdBtnParity_Mark.CheckedChanged += new System.EventHandler(this.RdBtnSerParity_CheckedChanged);
             // 
             // rdBtnParity_Even
             // 
@@ -384,7 +418,6 @@ namespace streamNode
             this.rdBtnParity_Even.TabIndex = 3;
             this.rdBtnParity_Even.Text = "Even";
             this.rdBtnParity_Even.UseVisualStyleBackColor = true;
-            this.rdBtnParity_Even.CheckedChanged += new System.EventHandler(this.RdBtnSerParity_CheckedChanged);
             // 
             // rdBtnParity_Odd
             // 
@@ -395,7 +428,6 @@ namespace streamNode
             this.rdBtnParity_Odd.TabIndex = 2;
             this.rdBtnParity_Odd.Text = "Odd";
             this.rdBtnParity_Odd.UseVisualStyleBackColor = true;
-            this.rdBtnParity_Odd.CheckedChanged += new System.EventHandler(this.RdBtnSerParity_CheckedChanged);
             // 
             // rdBtnParity_None
             // 
@@ -408,7 +440,6 @@ namespace streamNode
             this.rdBtnParity_None.TabStop = true;
             this.rdBtnParity_None.Text = "None";
             this.rdBtnParity_None.UseVisualStyleBackColor = true;
-            this.rdBtnParity_None.CheckedChanged += new System.EventHandler(this.RdBtnSerParity_CheckedChanged);
             // 
             // pSerBaud
             // 
@@ -427,7 +458,6 @@ namespace streamNode
             this.cmbBxBaud.Name = "cmbBxBaud";
             this.cmbBxBaud.Size = new System.Drawing.Size(98, 21);
             this.cmbBxBaud.TabIndex = 1;
-            this.cmbBxBaud.SelectedIndexChanged += new System.EventHandler(this.CmbBxBaudSelectedIndexChanged);
             // 
             // label2
             // 
@@ -463,7 +493,6 @@ namespace streamNode
             this.rdBtnHdwFlwCtrl_None.TabStop = true;
             this.rdBtnHdwFlwCtrl_None.Text = "None";
             this.rdBtnHdwFlwCtrl_None.UseVisualStyleBackColor = true;
-            this.rdBtnHdwFlwCtrl_None.CheckedChanged += new System.EventHandler(this.RdBtnSerFlowCtrl_CheckedChanged);
             // 
             // rdBtnHdwFlwCtrl_RTS_CTS
             // 
@@ -512,7 +541,6 @@ namespace streamNode
             this.rdBtnDataBits_5.TabIndex = 3;
             this.rdBtnDataBits_5.Text = "5 bits";
             this.rdBtnDataBits_5.UseVisualStyleBackColor = true;
-            this.rdBtnDataBits_5.CheckedChanged += new System.EventHandler(this.RdBtnSerDataBits_CheckedChanged);
             // 
             // rdBtnDataBits_6
             // 
@@ -523,7 +551,6 @@ namespace streamNode
             this.rdBtnDataBits_6.TabIndex = 2;
             this.rdBtnDataBits_6.Text = "6 bits";
             this.rdBtnDataBits_6.UseVisualStyleBackColor = true;
-            this.rdBtnDataBits_6.CheckedChanged += new System.EventHandler(this.RdBtnSerDataBits_CheckedChanged);
             // 
             // rdBtnDataBits_7
             // 
@@ -534,7 +561,6 @@ namespace streamNode
             this.rdBtnDataBits_7.TabIndex = 1;
             this.rdBtnDataBits_7.Text = "7 bits";
             this.rdBtnDataBits_7.UseVisualStyleBackColor = true;
-            this.rdBtnDataBits_7.CheckedChanged += new System.EventHandler(this.RdBtnSerDataBits_CheckedChanged);
             // 
             // rdBtnDataBits_8
             // 
@@ -547,7 +573,6 @@ namespace streamNode
             this.rdBtnDataBits_8.TabStop = true;
             this.rdBtnDataBits_8.Text = "8 bits";
             this.rdBtnDataBits_8.UseVisualStyleBackColor = true;
-            this.rdBtnDataBits_8.CheckedChanged += new System.EventHandler(this.RdBtnSerDataBits_CheckedChanged);
             // 
             // pSerPort
             // 
@@ -566,7 +591,6 @@ namespace streamNode
             this.cmbBxPorts.Name = "cmbBxPorts";
             this.cmbBxPorts.Size = new System.Drawing.Size(98, 21);
             this.cmbBxPorts.TabIndex = 2;
-            this.cmbBxPorts.SelectedIndexChanged += new System.EventHandler(this.CmbBxPortsSelectedIndexChanged);
             // 
             // label1
             // 
@@ -602,7 +626,6 @@ namespace streamNode
             this.rdBtnStopBits_2bits.TabIndex = 1;
             this.rdBtnStopBits_2bits.Text = "2 bits";
             this.rdBtnStopBits_2bits.UseVisualStyleBackColor = true;
-            this.rdBtnStopBits_2bits.CheckedChanged += new System.EventHandler(this.RdBtnSerStopBits_CheckedChanged);
             // 
             // rdBtnStopBits_1_5
             // 
@@ -614,7 +637,6 @@ namespace streamNode
             this.rdBtnStopBits_1_5.TabIndex = 3;
             this.rdBtnStopBits_1_5.Text = "1.5 bits";
             this.rdBtnStopBits_1_5.UseVisualStyleBackColor = true;
-            this.rdBtnStopBits_1_5.CheckedChanged += new System.EventHandler(this.RdBtnSerStopBits_CheckedChanged);
             // 
             // rdBtnStopBits_1bit
             // 
@@ -628,7 +650,6 @@ namespace streamNode
             this.rdBtnStopBits_1bit.TabStop = true;
             this.rdBtnStopBits_1bit.Text = "1 bit";
             this.rdBtnStopBits_1bit.UseVisualStyleBackColor = true;
-            this.rdBtnStopBits_1bit.CheckedChanged += new System.EventHandler(this.RdBtnSerStopBits_CheckedChanged);
             // 
             // rdBtnStopBits_None
             // 
@@ -640,7 +661,6 @@ namespace streamNode
             this.rdBtnStopBits_None.TabIndex = 2;
             this.rdBtnStopBits_None.Text = "None";
             this.rdBtnStopBits_None.UseVisualStyleBackColor = true;
-            this.rdBtnStopBits_None.CheckedChanged += new System.EventHandler(this.RdBtnSerStopBits_CheckedChanged);
             // 
             // pConnTcp
             // 
@@ -650,7 +670,8 @@ namespace streamNode
             this.pConnTcp.Dock = System.Windows.Forms.DockStyle.Left;
             this.pConnTcp.Location = new System.Drawing.Point(465, 0);
             this.pConnTcp.Name = "pConnTcp";
-            this.pConnTcp.Size = new System.Drawing.Size(164, 116);
+            this.pConnTcp.Padding = new System.Windows.Forms.Padding(3, 0, 0, 0);
+            this.pConnTcp.Size = new System.Drawing.Size(164, 117);
             this.pConnTcp.TabIndex = 5;
             this.pConnTcp.Visible = false;
             // 
@@ -659,10 +680,10 @@ namespace streamNode
             this.grpBxTypeTcp.Controls.Add(this.rdBtnTCPType_server);
             this.grpBxTypeTcp.Controls.Add(this.rdBtnTCPType_client);
             this.grpBxTypeTcp.Dock = System.Windows.Forms.DockStyle.Top;
-            this.grpBxTypeTcp.Location = new System.Drawing.Point(0, 44);
+            this.grpBxTypeTcp.Location = new System.Drawing.Point(3, 44);
             this.grpBxTypeTcp.Name = "grpBxTypeTcp";
             this.grpBxTypeTcp.Padding = new System.Windows.Forms.Padding(6, 3, 3, 3);
-            this.grpBxTypeTcp.Size = new System.Drawing.Size(164, 38);
+            this.grpBxTypeTcp.Size = new System.Drawing.Size(161, 38);
             this.grpBxTypeTcp.TabIndex = 5;
             this.grpBxTypeTcp.TabStop = false;
             this.grpBxTypeTcp.Text = "Socket as";
@@ -677,7 +698,6 @@ namespace streamNode
             this.rdBtnTCPType_server.TabStop = true;
             this.rdBtnTCPType_server.Text = "Server";
             this.rdBtnTCPType_server.UseVisualStyleBackColor = true;
-            this.rdBtnTCPType_server.CheckedChanged += new System.EventHandler(this.RdBtnTcpType_CheckedChanged);
             // 
             // rdBtnTCPType_client
             // 
@@ -690,16 +710,15 @@ namespace streamNode
             this.rdBtnTCPType_client.TabStop = true;
             this.rdBtnTCPType_client.Text = "Client";
             this.rdBtnTCPType_client.UseVisualStyleBackColor = true;
-            this.rdBtnTCPType_client.CheckedChanged += new System.EventHandler(this.RdBtnTcpType_CheckedChanged);
             // 
             // pTcpPort
             // 
             this.pTcpPort.Controls.Add(this.txtBxTcpPort);
             this.pTcpPort.Controls.Add(this.label4);
             this.pTcpPort.Dock = System.Windows.Forms.DockStyle.Top;
-            this.pTcpPort.Location = new System.Drawing.Point(0, 22);
+            this.pTcpPort.Location = new System.Drawing.Point(3, 22);
             this.pTcpPort.Name = "pTcpPort";
-            this.pTcpPort.Size = new System.Drawing.Size(164, 22);
+            this.pTcpPort.Size = new System.Drawing.Size(161, 22);
             this.pTcpPort.TabIndex = 4;
             // 
             // txtBxTcpPort
@@ -707,10 +726,9 @@ namespace streamNode
             this.txtBxTcpPort.Dock = System.Windows.Forms.DockStyle.Fill;
             this.txtBxTcpPort.Location = new System.Drawing.Point(59, 0);
             this.txtBxTcpPort.Name = "txtBxTcpPort";
-            this.txtBxTcpPort.Size = new System.Drawing.Size(105, 20);
+            this.txtBxTcpPort.Size = new System.Drawing.Size(102, 20);
             this.txtBxTcpPort.TabIndex = 1;
             this.txtBxTcpPort.Text = "54321";
-            this.txtBxTcpPort.TextChanged += new System.EventHandler(this.TxtBxTcpPortTextChanged);
             // 
             // label4
             // 
@@ -727,9 +745,9 @@ namespace streamNode
             this.pTcpAdr.Controls.Add(this.txtBxTcpAdr);
             this.pTcpAdr.Controls.Add(this.label3);
             this.pTcpAdr.Dock = System.Windows.Forms.DockStyle.Top;
-            this.pTcpAdr.Location = new System.Drawing.Point(0, 0);
+            this.pTcpAdr.Location = new System.Drawing.Point(3, 0);
             this.pTcpAdr.Name = "pTcpAdr";
-            this.pTcpAdr.Size = new System.Drawing.Size(164, 22);
+            this.pTcpAdr.Size = new System.Drawing.Size(161, 22);
             this.pTcpAdr.TabIndex = 3;
             // 
             // txtBxTcpAdr
@@ -737,10 +755,9 @@ namespace streamNode
             this.txtBxTcpAdr.Dock = System.Windows.Forms.DockStyle.Fill;
             this.txtBxTcpAdr.Location = new System.Drawing.Point(59, 0);
             this.txtBxTcpAdr.Name = "txtBxTcpAdr";
-            this.txtBxTcpAdr.Size = new System.Drawing.Size(105, 20);
+            this.txtBxTcpAdr.Size = new System.Drawing.Size(102, 20);
             this.txtBxTcpAdr.TabIndex = 1;
             this.txtBxTcpAdr.Text = "127.0.0.1";
-            this.txtBxTcpAdr.TextChanged += new System.EventHandler(this.TxtBxTcpAdrTextChanged);
             // 
             // label3
             // 
@@ -760,7 +777,8 @@ namespace streamNode
             this.pConnUdp.Dock = System.Windows.Forms.DockStyle.Left;
             this.pConnUdp.Location = new System.Drawing.Point(629, 0);
             this.pConnUdp.Name = "pConnUdp";
-            this.pConnUdp.Size = new System.Drawing.Size(164, 116);
+            this.pConnUdp.Padding = new System.Windows.Forms.Padding(3, 0, 0, 0);
+            this.pConnUdp.Size = new System.Drawing.Size(164, 117);
             this.pConnUdp.TabIndex = 6;
             this.pConnUdp.Visible = false;
             // 
@@ -769,10 +787,10 @@ namespace streamNode
             this.grpBxTypeUdp.Controls.Add(this.rdBtnUdpType_server);
             this.grpBxTypeUdp.Controls.Add(this.rdBtnUdpType_client);
             this.grpBxTypeUdp.Dock = System.Windows.Forms.DockStyle.Top;
-            this.grpBxTypeUdp.Location = new System.Drawing.Point(0, 44);
+            this.grpBxTypeUdp.Location = new System.Drawing.Point(3, 44);
             this.grpBxTypeUdp.Name = "grpBxTypeUdp";
             this.grpBxTypeUdp.Padding = new System.Windows.Forms.Padding(6, 3, 3, 3);
-            this.grpBxTypeUdp.Size = new System.Drawing.Size(164, 38);
+            this.grpBxTypeUdp.Size = new System.Drawing.Size(161, 38);
             this.grpBxTypeUdp.TabIndex = 8;
             this.grpBxTypeUdp.TabStop = false;
             this.grpBxTypeUdp.Text = "Socket as";
@@ -787,7 +805,6 @@ namespace streamNode
             this.rdBtnUdpType_server.TabIndex = 1;
             this.rdBtnUdpType_server.Text = "Receiver";
             this.rdBtnUdpType_server.UseVisualStyleBackColor = true;
-            this.rdBtnUdpType_server.CheckedChanged += new System.EventHandler(this.RdBtnUdpType_CheckedChanged);
             // 
             // rdBtnUdpType_client
             // 
@@ -800,16 +817,15 @@ namespace streamNode
             this.rdBtnUdpType_client.TabStop = true;
             this.rdBtnUdpType_client.Text = "Sender";
             this.rdBtnUdpType_client.UseVisualStyleBackColor = true;
-            this.rdBtnUdpType_client.CheckedChanged += new System.EventHandler(this.RdBtnUdpType_CheckedChanged);
             // 
             // pUdpPort
             // 
             this.pUdpPort.Controls.Add(this.txtBxUdpPort);
             this.pUdpPort.Controls.Add(this.label6);
             this.pUdpPort.Dock = System.Windows.Forms.DockStyle.Top;
-            this.pUdpPort.Location = new System.Drawing.Point(0, 22);
+            this.pUdpPort.Location = new System.Drawing.Point(3, 22);
             this.pUdpPort.Name = "pUdpPort";
-            this.pUdpPort.Size = new System.Drawing.Size(164, 22);
+            this.pUdpPort.Size = new System.Drawing.Size(161, 22);
             this.pUdpPort.TabIndex = 7;
             // 
             // txtBxUdpPort
@@ -817,10 +833,9 @@ namespace streamNode
             this.txtBxUdpPort.Dock = System.Windows.Forms.DockStyle.Fill;
             this.txtBxUdpPort.Location = new System.Drawing.Point(59, 0);
             this.txtBxUdpPort.Name = "txtBxUdpPort";
-            this.txtBxUdpPort.Size = new System.Drawing.Size(105, 20);
+            this.txtBxUdpPort.Size = new System.Drawing.Size(102, 20);
             this.txtBxUdpPort.TabIndex = 1;
             this.txtBxUdpPort.Text = "54321";
-            this.txtBxUdpPort.TextChanged += new System.EventHandler(this.TxtBxUdpPortTextChanged);
             // 
             // label6
             // 
@@ -837,9 +852,9 @@ namespace streamNode
             this.pUdpAdr.Controls.Add(this.txtBxUdpAdr);
             this.pUdpAdr.Controls.Add(this.label5);
             this.pUdpAdr.Dock = System.Windows.Forms.DockStyle.Top;
-            this.pUdpAdr.Location = new System.Drawing.Point(0, 0);
+            this.pUdpAdr.Location = new System.Drawing.Point(3, 0);
             this.pUdpAdr.Name = "pUdpAdr";
-            this.pUdpAdr.Size = new System.Drawing.Size(164, 22);
+            this.pUdpAdr.Size = new System.Drawing.Size(161, 22);
             this.pUdpAdr.TabIndex = 6;
             // 
             // txtBxUdpAdr
@@ -847,10 +862,9 @@ namespace streamNode
             this.txtBxUdpAdr.Dock = System.Windows.Forms.DockStyle.Fill;
             this.txtBxUdpAdr.Location = new System.Drawing.Point(59, 0);
             this.txtBxUdpAdr.Name = "txtBxUdpAdr";
-            this.txtBxUdpAdr.Size = new System.Drawing.Size(105, 20);
+            this.txtBxUdpAdr.Size = new System.Drawing.Size(102, 20);
             this.txtBxUdpAdr.TabIndex = 1;
             this.txtBxUdpAdr.Text = "127.0.0.1";
-            this.txtBxUdpAdr.TextChanged += new System.EventHandler(this.TxtBxUdpAdrTextChanged);
             // 
             // label5
             // 
@@ -869,7 +883,7 @@ namespace streamNode
             this.pConnMult.Dock = System.Windows.Forms.DockStyle.Left;
             this.pConnMult.Location = new System.Drawing.Point(793, 0);
             this.pConnMult.Name = "pConnMult";
-            this.pConnMult.Size = new System.Drawing.Size(164, 116);
+            this.pConnMult.Size = new System.Drawing.Size(164, 117);
             this.pConnMult.TabIndex = 7;
             this.pConnMult.Visible = false;
             // 
@@ -891,7 +905,6 @@ namespace streamNode
             this.txtBxMultPort.Size = new System.Drawing.Size(105, 20);
             this.txtBxMultPort.TabIndex = 1;
             this.txtBxMultPort.Text = "54321";
-            this.txtBxMultPort.TextChanged += new System.EventHandler(this.TxtBxMultPortTextChanged);
             // 
             // label8
             // 
@@ -921,7 +934,6 @@ namespace streamNode
             this.txtBxMultAdr.Size = new System.Drawing.Size(105, 20);
             this.txtBxMultAdr.TabIndex = 1;
             this.txtBxMultAdr.Text = "127.0.0.1";
-            this.txtBxMultAdr.TextChanged += new System.EventHandler(this.TxtBxMultAdrTextChanged);
             // 
             // label7
             // 
@@ -941,20 +953,68 @@ namespace streamNode
             this.pCfg.Controls.Add(this.pConnSerial);
             this.pCfg.Controls.Add(this.grpBxConnType);
             this.pCfg.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.pCfg.Location = new System.Drawing.Point(97, 0);
+            this.pCfg.Location = new System.Drawing.Point(97, 41);
             this.pCfg.Name = "pCfg";
-            this.pCfg.Size = new System.Drawing.Size(1177, 116);
+            this.pCfg.Size = new System.Drawing.Size(1013, 117);
             this.pCfg.TabIndex = 8;
+            // 
+            // grpBxCfgArgsLine
+            // 
+            this.grpBxCfgArgsLine.Controls.Add(this.txtBxCfg);
+            this.grpBxCfgArgsLine.Controls.Add(this.btnCfgSet);
+            this.grpBxCfgArgsLine.Controls.Add(this.btnCfgGet);
+            this.grpBxCfgArgsLine.Dock = System.Windows.Forms.DockStyle.Top;
+            this.grpBxCfgArgsLine.Location = new System.Drawing.Point(97, 0);
+            this.grpBxCfgArgsLine.Name = "grpBxCfgArgsLine";
+            this.grpBxCfgArgsLine.Size = new System.Drawing.Size(1013, 41);
+            this.grpBxCfgArgsLine.TabIndex = 9;
+            this.grpBxCfgArgsLine.TabStop = false;
+            this.grpBxCfgArgsLine.Text = "Stream configuration command";
+            // 
+            // txtBxCfg
+            // 
+            this.txtBxCfg.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.txtBxCfg.Location = new System.Drawing.Point(97, 16);
+            this.txtBxCfg.Name = "txtBxCfg";
+            this.txtBxCfg.Size = new System.Drawing.Size(913, 20);
+            this.txtBxCfg.TabIndex = 0;
+            // 
+            // btnCfgSet
+            // 
+            this.btnCfgSet.Dock = System.Windows.Forms.DockStyle.Left;
+            this.btnCfgSet.Location = new System.Drawing.Point(50, 16);
+            this.btnCfgSet.Margin = new System.Windows.Forms.Padding(1);
+            this.btnCfgSet.Name = "btnCfgSet";
+            this.btnCfgSet.Size = new System.Drawing.Size(47, 22);
+            this.btnCfgSet.TabIndex = 2;
+            this.btnCfgSet.Text = "Set";
+            this.btnCfgSet.TextAlign = System.Drawing.ContentAlignment.TopCenter;
+            this.btnCfgSet.UseVisualStyleBackColor = true;
+            this.btnCfgSet.Click += new System.EventHandler(this.BtnCfgSetClick);
+            // 
+            // btnCfgGet
+            // 
+            this.btnCfgGet.Dock = System.Windows.Forms.DockStyle.Left;
+            this.btnCfgGet.Location = new System.Drawing.Point(3, 16);
+            this.btnCfgGet.Margin = new System.Windows.Forms.Padding(1);
+            this.btnCfgGet.Name = "btnCfgGet";
+            this.btnCfgGet.Size = new System.Drawing.Size(47, 22);
+            this.btnCfgGet.TabIndex = 1;
+            this.btnCfgGet.Text = "Get";
+            this.btnCfgGet.TextAlign = System.Drawing.ContentAlignment.TopCenter;
+            this.btnCfgGet.UseVisualStyleBackColor = true;
+            this.btnCfgGet.Click += new System.EventHandler(this.BtnCfgGetClick);
             // 
             // ConnPanel
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.Controls.Add(this.pCfg);
+            this.Controls.Add(this.grpBxCfgArgsLine);
             this.Controls.Add(this.pConnInfo);
             this.Name = "ConnPanel";
             this.Padding = new System.Windows.Forms.Padding(3, 0, 3, 3);
-            this.Size = new System.Drawing.Size(1277, 119);
+            this.Size = new System.Drawing.Size(1113, 161);
             this.grpBxConnType.ResumeLayout(false);
             this.pConnInfo.ResumeLayout(false);
             this.groupBox1.ResumeLayout(false);
@@ -986,6 +1046,8 @@ namespace streamNode
             this.pMultAdr.ResumeLayout(false);
             this.pMultAdr.PerformLayout();
             this.pCfg.ResumeLayout(false);
+            this.grpBxCfgArgsLine.ResumeLayout(false);
+            this.grpBxCfgArgsLine.PerformLayout();
             this.ResumeLayout(false);
 
         }
