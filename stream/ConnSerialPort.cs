@@ -60,7 +60,12 @@ namespace stream {
             
             if (opt.parity != null) {
                 paramValue = opt.parity.ToLower();
-                if (paramValue == "none") { _sp.Parity = Parity.None;  } else if (paramValue == "odd") { _sp.Parity = Parity.Odd;   } else if (paramValue == "even") { _sp.Parity = Parity.Even;  } else if (paramValue == "mark") { _sp.Parity = Parity.Mark;  } else if (paramValue == "space") { _sp.Parity = Parity.Space; } else {
+                if      ( paramValue == "none"  ) { _sp.Parity = Parity.None;  }
+                else if ( paramValue == "odd"   ) { _sp.Parity = Parity.Odd;   }
+                else if ( paramValue == "even"  ) { _sp.Parity = Parity.Even;  }
+                else if ( paramValue == "mark"  ) { _sp.Parity = Parity.Mark;  }
+                else if ( paramValue == "space" ) { _sp.Parity = Parity.Space; }
+                else {
                     Console.WriteLine("Incorrect value for '--parity': {" + opt.parity + "}");
                     return false;
                 }
@@ -77,10 +82,17 @@ namespace stream {
             
             if (opt.stopBits != null) {
                 paramValue = opt.stopBits.ToLower();
-                if (paramValue == "none") { _sp.StopBits = StopBits.None;           } else if (paramValue == "one") { _sp.StopBits = StopBits.One;            } else if (paramValue == "two") { _sp.StopBits = StopBits.Two;            } else if (paramValue == "onepointfive") { _sp.StopBits = StopBits.OnePointFive;   } else {
+                if      ( paramValue == "none"          ) { _sp.StopBits = StopBits.None;           }
+                else if ( paramValue == "one"           ) { _sp.StopBits = StopBits.One;            }
+                else if ( paramValue == "two"           ) { _sp.StopBits = StopBits.Two;            }
+                else if ( paramValue == "onepointfive"  ) { _sp.StopBits = StopBits.OnePointFive;   }
+                else {
                     try {
                         stopBits = Convert.ToInt32(opt.stopBits);
-                        if (stopBits == 0) { _sp.StopBits = StopBits.None;           } else if (stopBits == 1) { _sp.StopBits = StopBits.One;            } else if (stopBits == 2) { _sp.StopBits = StopBits.Two;            } else if (opt.stopBits == "1.5") { _sp.StopBits = StopBits.OnePointFive;   }
+                        if      ( stopBits == 0         ) { _sp.StopBits = StopBits.None;           }
+                        else if ( stopBits == 1         ) { _sp.StopBits = StopBits.One;            }
+                        else if ( stopBits == 2         ) { _sp.StopBits = StopBits.Two;            }
+                        else if ( opt.stopBits == "1.5" ) { _sp.StopBits = StopBits.OnePointFive;   }
                     } catch {
                         Console.WriteLine("Incorrect value for '--stopBits': {" + opt.stopBits + "}");
                         return false;
