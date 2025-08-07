@@ -501,7 +501,7 @@ namespace streamNode {
             if( trm == null || !trm.IsHandleCreated ) {
                 trm = new Terminal();
                 trm.SendDataFromTerminal += sendDataFromTerminal;
-                trm.Text = txtBxName.Text + " - " + txtBxCfg.Text;
+                trm.Text = txtBxName.Text + " @ " + txtBxCfg.Text;
             }
             
             trm.Show();
@@ -546,9 +546,15 @@ namespace streamNode {
         }
         
         
+        int btnDeleteCntr = 0;
         void BtnDeleteClick(object sender, EventArgs e) {
-            this.Close();
-            this.Parent.Controls.Remove(this);
+            btnDeleteCntr++;
+            if ( btnDeleteCntr == 1 ) {
+                btnDelete.Text = "You sure?";
+            } else {
+                this.Close();
+                this.Parent.Controls.Remove(this);
+            }
         }
         
     }

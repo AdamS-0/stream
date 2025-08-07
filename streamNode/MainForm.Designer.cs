@@ -19,7 +19,7 @@ namespace streamNode
         private System.Windows.Forms.ToolStripDropDownButton toolStripLabel1;
         private System.Windows.Forms.Panel pConns;
         private System.Windows.Forms.ToolStripMenuItem tlStrip_cfgLoad;
-        private System.Windows.Forms.ToolStripLabel tlStrip_AddNewConn;
+        private System.Windows.Forms.ToolStripButton tlStrip_AddNewConn;
         private System.Windows.Forms.ToolStripMenuItem tlStrip_cfgSave;
         
         /// <summary>
@@ -43,13 +43,14 @@ namespace streamNode
         /// </summary>
         private void InitializeComponent()
         {
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(MainForm));
             this.richTextBox1 = new System.Windows.Forms.RichTextBox();
             this.toolStrip1 = new System.Windows.Forms.ToolStrip();
             this.toolStripLabel1 = new System.Windows.Forms.ToolStripDropDownButton();
             this.tlStrip_cfgLoad = new System.Windows.Forms.ToolStripMenuItem();
             this.tlStrip_cfgSave = new System.Windows.Forms.ToolStripMenuItem();
-            this.tlStrip_AddNewConn = new System.Windows.Forms.ToolStripLabel();
             this.pConns = new System.Windows.Forms.Panel();
+            this.tlStrip_AddNewConn = new System.Windows.Forms.ToolStripButton();
             this.toolStrip1.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -85,23 +86,16 @@ namespace streamNode
             // tlStrip_cfgLoad
             // 
             this.tlStrip_cfgLoad.Name = "tlStrip_cfgLoad";
-            this.tlStrip_cfgLoad.Size = new System.Drawing.Size(153, 22);
+            this.tlStrip_cfgLoad.Size = new System.Drawing.Size(104, 22);
             this.tlStrip_cfgLoad.Text = "Load";
             this.tlStrip_cfgLoad.Click += new System.EventHandler(this.TlStrip_cfgLoadClick);
             // 
             // tlStrip_cfgSave
             // 
             this.tlStrip_cfgSave.Name = "tlStrip_cfgSave";
-            this.tlStrip_cfgSave.Size = new System.Drawing.Size(153, 22);
+            this.tlStrip_cfgSave.Size = new System.Drawing.Size(104, 22);
             this.tlStrip_cfgSave.Text = "Save";
             this.tlStrip_cfgSave.Click += new System.EventHandler(this.TlStrip_cfgSaveClick);
-            // 
-            // tlStrip_AddNewConn
-            // 
-            this.tlStrip_AddNewConn.Name = "tlStrip_AddNewConn";
-            this.tlStrip_AddNewConn.Size = new System.Drawing.Size(31, 22);
-            this.tlStrip_AddNewConn.Text = "Add";
-            this.tlStrip_AddNewConn.Click += new System.EventHandler(this.TlStrip_AddNewConnClick);
             // 
             // pConns
             // 
@@ -111,6 +105,16 @@ namespace streamNode
             this.pConns.Name = "pConns";
             this.pConns.Size = new System.Drawing.Size(564, 407);
             this.pConns.TabIndex = 2;
+            // 
+            // tlStrip_AddNewConn
+            // 
+            this.tlStrip_AddNewConn.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Text;
+            this.tlStrip_AddNewConn.Image = ((System.Drawing.Image)(resources.GetObject("tlStrip_AddNewConn.Image")));
+            this.tlStrip_AddNewConn.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.tlStrip_AddNewConn.Name = "tlStrip_AddNewConn";
+            this.tlStrip_AddNewConn.Size = new System.Drawing.Size(129, 22);
+            this.tlStrip_AddNewConn.Text = "Add new connection";
+            this.tlStrip_AddNewConn.Click += new System.EventHandler(this.TlStrip_AddNewConnClick);
             // 
             // MainForm
             // 

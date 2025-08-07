@@ -28,8 +28,10 @@ namespace streamNode {
         public void AppendText(string message) {
             try {
                 rtbTerm.Invoke((MethodInvoker)(() => {
-                                                   rtbTerm.AppendText(message);
-                                                   rtbTerm.ScrollToCaret();
+                                                rtbTerm.AppendText(message);
+                                                if ( tlStrip_autoscroll.Checked ) {
+                                                    rtbTerm.ScrollToCaret();
+                                                }
                 }));
             } catch {}
         }
@@ -41,9 +43,12 @@ namespace streamNode {
         void TxtBxData2SendKeyDown(object sender, KeyEventArgs e) {
             if( (e.KeyCode == Keys.Enter) || (e.KeyCode == Keys.Return) ) {
                 if( this.SendDataFromTerminal != null ) {
-                    this.SendDataFromTerminal( txtBxData2Send.Text + "\r\n" );
+                    this.SendDataFromTerminal( txtBxData2Send.Text + (tlStrip_newline.Text == "CR+LF" ? "\r" : "" ) + "\n" );
                 }
             }
+        }
+        void TlStrip_clearClick(object sender, EventArgs e) {
+            rtbTerm.Text = "";
         }
         
         
