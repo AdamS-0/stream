@@ -21,6 +21,8 @@ namespace streamNode
         private System.Windows.Forms.ToolStripMenuItem tlStrip_cfgLoad;
         private System.Windows.Forms.ToolStripLabel tlStrip_AddNewConn;
         private System.Windows.Forms.ToolStripMenuItem tlStrip_cfgSave;
+        private System.Windows.Forms.ToolStripDropDownButton tlStrip_connections;
+        private System.Windows.Forms.ToolStripMenuItem deleteAllToolStripMenuItem;
         
         /// <summary>
         /// Disposes resources used by the form.
@@ -43,6 +45,7 @@ namespace streamNode
         /// </summary>
         private void InitializeComponent()
         {
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(MainForm));
             this.richTextBox1 = new System.Windows.Forms.RichTextBox();
             this.toolStrip1 = new System.Windows.Forms.ToolStrip();
             this.toolStripLabel1 = new System.Windows.Forms.ToolStripDropDownButton();
@@ -50,6 +53,8 @@ namespace streamNode
             this.tlStrip_cfgSave = new System.Windows.Forms.ToolStripMenuItem();
             this.tlStrip_AddNewConn = new System.Windows.Forms.ToolStripLabel();
             this.pConns = new System.Windows.Forms.Panel();
+            this.tlStrip_connections = new System.Windows.Forms.ToolStripDropDownButton();
+            this.deleteAllToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStrip1.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -66,7 +71,8 @@ namespace streamNode
             // 
             this.toolStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.toolStripLabel1,
-            this.tlStrip_AddNewConn});
+            this.tlStrip_AddNewConn,
+            this.tlStrip_connections});
             this.toolStrip1.Location = new System.Drawing.Point(0, 0);
             this.toolStrip1.Name = "toolStrip1";
             this.toolStrip1.Size = new System.Drawing.Size(564, 25);
@@ -85,14 +91,14 @@ namespace streamNode
             // tlStrip_cfgLoad
             // 
             this.tlStrip_cfgLoad.Name = "tlStrip_cfgLoad";
-            this.tlStrip_cfgLoad.Size = new System.Drawing.Size(153, 22);
+            this.tlStrip_cfgLoad.Size = new System.Drawing.Size(104, 22);
             this.tlStrip_cfgLoad.Text = "Load";
             this.tlStrip_cfgLoad.Click += new System.EventHandler(this.TlStrip_cfgLoadClick);
             // 
             // tlStrip_cfgSave
             // 
             this.tlStrip_cfgSave.Name = "tlStrip_cfgSave";
-            this.tlStrip_cfgSave.Size = new System.Drawing.Size(153, 22);
+            this.tlStrip_cfgSave.Size = new System.Drawing.Size(104, 22);
             this.tlStrip_cfgSave.Text = "Save";
             this.tlStrip_cfgSave.Click += new System.EventHandler(this.TlStrip_cfgSaveClick);
             // 
@@ -111,6 +117,24 @@ namespace streamNode
             this.pConns.Name = "pConns";
             this.pConns.Size = new System.Drawing.Size(564, 407);
             this.pConns.TabIndex = 2;
+            // 
+            // tlStrip_connections
+            // 
+            this.tlStrip_connections.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Text;
+            this.tlStrip_connections.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.deleteAllToolStripMenuItem});
+            this.tlStrip_connections.Image = ((System.Drawing.Image)(resources.GetObject("tlStrip_connections.Image")));
+            this.tlStrip_connections.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.tlStrip_connections.Name = "tlStrip_connections";
+            this.tlStrip_connections.Size = new System.Drawing.Size(93, 22);
+            this.tlStrip_connections.Text = "Connections";
+            // 
+            // deleteAllToolStripMenuItem
+            // 
+            this.deleteAllToolStripMenuItem.Name = "deleteAllToolStripMenuItem";
+            this.deleteAllToolStripMenuItem.Size = new System.Drawing.Size(153, 22);
+            this.deleteAllToolStripMenuItem.Text = "Delete all";
+            this.deleteAllToolStripMenuItem.Click += new System.EventHandler(this.DeleteAllToolStripMenuItemClick);
             // 
             // MainForm
             // 

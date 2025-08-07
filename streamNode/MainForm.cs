@@ -84,6 +84,22 @@ namespace streamNode {
         
         
         
+        void closeAllConnections() {
+            foreach( Control con in pConns.Controls ) {
+                try {
+                    ((ConnPanel)con).Close();
+                } catch {}
+            }
+        }
+        
+        void deleteAllConnections() {
+            closeAllConnections();
+            while( 0 < pConns.Controls.Count ) {
+                pConns.Controls.RemoveAt(0);
+            }      
+        }
+        
+        
         
         void WriteCfgToFile(string filePath) {
             NodeCfg cfg = new NodeCfg();
@@ -100,16 +116,7 @@ namespace streamNode {
         void loadCfgFromFile(string filePath) {
             this.SuspendLayout();
             
-            foreach( Control con in pConns.Controls ) {
-                try {
-                    ((ConnPanel)con).Close();
-                } catch {}
-            }
-
-            while( 0 < pConns.Controls.Count ) {
-                pConns.Controls.RemoveAt(0);
-            }            
-            
+            deleteAllConnections();
             
             NodeCfg cfg = NodeCfg.ReadFromFile(filePath);
             foreach( NodeCfgConn nodeCfgCon in cfg.conns) {
@@ -144,6 +151,12 @@ namespace streamNode {
         
         void TlStrip_AddNewConnClick(object sender, EventArgs e) {
             addNewConn();
+        }
+        
+       
+        
+        void DeleteAllToolStripMenuItemClick(object sender, EventArgs e) {
+            deleteAllConnections();
         }
         
 
