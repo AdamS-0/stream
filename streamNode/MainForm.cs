@@ -80,6 +80,12 @@ namespace streamNode {
             addNewConn();
         }
         
+        void MainFormLoad(object sender, EventArgs e) {
+            if( pConns.Controls.Count <= 0 ) {
+                addNewConn();
+            }
+        }
+        
 
     }
 }

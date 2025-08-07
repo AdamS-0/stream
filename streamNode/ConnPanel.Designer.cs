@@ -327,7 +327,6 @@ namespace streamNode
             this.btnTerminal.TabIndex = 6;
             this.btnTerminal.Text = "Terminal";
             this.btnTerminal.UseVisualStyleBackColor = true;
-            this.btnTerminal.Click += new System.EventHandler(this.BtnTerminalClick);
             // 
             // btnOpen
             // 

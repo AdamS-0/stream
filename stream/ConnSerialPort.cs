@@ -86,13 +86,13 @@ namespace stream {
                 else if ( paramValue == "one"           ) { _sp.StopBits = StopBits.One;            }
                 else if ( paramValue == "two"           ) { _sp.StopBits = StopBits.Two;            }
                 else if ( paramValue == "onepointfive"  ) { _sp.StopBits = StopBits.OnePointFive;   }
+                else if ( paramValue == "1.5"           ) { _sp.StopBits = StopBits.OnePointFive;   }
                 else {
                     try {
                         stopBits = Convert.ToInt32(opt.stopBits);
                         if      ( stopBits == 0         ) { _sp.StopBits = StopBits.None;           }
                         else if ( stopBits == 1         ) { _sp.StopBits = StopBits.One;            }
                         else if ( stopBits == 2         ) { _sp.StopBits = StopBits.Two;            }
-                        else if ( opt.stopBits == "1.5" ) { _sp.StopBits = StopBits.OnePointFive;   }
                     } catch {
                         Console.WriteLine("Incorrect value for '--stopBits': {" + opt.stopBits + "}");
                         return false;

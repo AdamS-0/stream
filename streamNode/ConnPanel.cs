@@ -171,13 +171,15 @@ namespace streamNode {
         
         string getStrArgsFromOptions(stream.Options opts) {
             string ret = "";
+            string strPropVal = "";
             object propValue = null;
             
             PropertyInfo[] properties = opts.GetType().GetProperties();
             foreach( PropertyInfo pi in properties ) {
                 propValue = pi.GetValue(opts);
                 if( propValue == null ) { continue; }
-                ret += " --" + pi.Name + " " + propValue.ToString();
+                strPropVal = propValue.ToString();
+                ret += " --" + pi.Name + (strPropVal.Length > 0 ? " " + propValue.ToString() : "" );
             }
             return ret;
         }
@@ -227,9 +229,9 @@ namespace streamNode {
         }
         
         string getFromGUI_StopBits() {
-            if      ( rdBtnStopBits_1bit.Checked    ) { return "one";           }
-            else if ( rdBtnStopBits_1_5.Checked     ) { return "onepointfive";  }
-            else if ( rdBtnStopBits_2bits.Checked   ) { return "2";             }
+            if      ( rdBtnStopBits_1bit.Checked    ) { return "1"  ; }
+            else if ( rdBtnStopBits_1_5.Checked     ) { return "1.5"; }
+            else if ( rdBtnStopBits_2bits.Checked   ) { return "2"  ; }
             return "none";
         }
         
@@ -317,10 +319,153 @@ namespace streamNode {
         }
         
         void BtnCfgSetClick(object sender, EventArgs e) {
-          
+            loadStreamCfgFromString(txtBxCfg.Text);
         }
         
         
+        
+        void loadStreamCfgFromString(string strCfg) {
+            if( strCfg.Length <= 0 ) { return; }
+            
+            string[] args = strCfg.Split(new char[] {' '}, StringSplitOptions.RemoveEmptyEntries);
+            
+            opt = CommandLineParser.CommandLineParser.ParseArguments<stream.Options>(args);
+            
+            if      ( opt.com  != null ) { setStreamCfgGUI_Ser(opt); }
+            else if ( opt.tcp  != null ) { setStreamCfgGUI_Tcp(opt); }
+            else if ( opt.udp  != null ) { setStreamCfgGUI_Udp(opt); }
+            else if ( opt.mudp != null ) { setStreamCfgGUI_Mult(opt); }
+        }
+        
+        
+        void setStreamCfgGUI_Ser(stream.Options opts) {
+            string portName = "";
+            string baud = "";
+            
+            if( opts.com.Length > 0 ) { portName = opts.com; }
+            if( opts.name != null ) { portName = opts.name; }
+            if( opts.baud != null ) { baud = opts.baud; }
+            
+            cmbBxPorts.Text = portName;
+            cmbBxBaud .Text = baud;
+            
+            rdBtnParity_None .Checked = true;
+            rdBtnParity_Odd  .Checked = false;
+            rdBtnParity_Even .Checked = false;
+            rdBtnParity_Mark .Checked = false;
+            rdBtnParity_Space.Checked = false;
+            
+            if( opts.parity != null ) {
+                string parity = opts.parity.ToLower();
+                if      ( parity == "odd"   ) { rdBtnParity_Odd  .Checked = true; }
+                else if ( parity == "even"  ) { rdBtnParity_Even .Checked = true; }
+                else if ( parity == "mark"  ) { rdBtnParity_Mark .Checked = true; }
+                else if ( parity == "space" ) { rdBtnParity_Space.Checked = true; }
+            }
+            
+            
+            rdBtnDataBits_5.Checked = false;
+            rdBtnDataBits_6.Checked = false;
+            rdBtnDataBits_7.Checked = false;
+            rdBtnDataBits_8.Checked = true;
+            
+            if( opts.dataBits != null ) {
+                string dataBits = opts.dataBits.ToLower();
+                if      ( dataBits == "5" ) { rdBtnDataBits_5.Checked = true; }
+                else if ( dataBits == "6" ) { rdBtnDataBits_6.Checked = true; }
+                else if ( dataBits == "7" ) { rdBtnDataBits_7.Checked = true; }
+            }
+            
+            
+            rdBtnStopBits_None .Checked = false;
+            rdBtnStopBits_1bit .Checked = true;
+            rdBtnStopBits_1_5  .Checked = false;
+            rdBtnStopBits_2bits.Checked = false;
+            
+            if (opts.stopBits != null) {
+                string stopBits = opts.stopBits.ToLower();
+                if      ( stopBits == "none"         || stopBits == "0"   ) { rdBtnStopBits_None.Checked = true; }
+                else if ( stopBits == "two"          || stopBits == "2"   ) { rdBtnStopBits_2bits.Checked = true; }
+                else if ( stopBits == "onepointfive" || stopBits == "1.5" ) { rdBtnStopBits_1_5.Checked = true; }
+            }
+            
+        }
+        
+        void setStreamCfgGUI_Tcp(stream.Options opts) {
+            string adr = "";
+            string port = "";
+            
+            if( opts.tcp != null ) {
+                if( opts.tcp.Length > 0 ) {
+                    string[] adrPort = opts.tcp.Split(':');
+                    adr = adrPort[0];
+                    
+                    if(adrPort.Length > 1) {
+                        port = adrPort[1];
+                    }
+                }
+            }
+            
+            if( opts.address != null ) { adr  = opt.address; }
+            if( opts.port    != null ) { port = opt.port; }
+            
+            rdBtnTCPType_server.Checked = false;
+            rdBtnTCPType_client.Checked = false;
+            if ( opts.server != null )  { rdBtnTCPType_server.Checked = true; }
+            else                        { rdBtnTCPType_client.Checked = true; }
+            
+            txtBxMultAdr.Text = adr;
+            txtBxMultPort.Text = port;
+        }
+        
+        void setStreamCfgGUI_Udp(stream.Options opts) {
+            string adr = "";
+            string port = "";
+            
+            if( opts.udp != null ) {
+                if( opts.udp.Length > 0 ) {
+                    string[] adrPort = opts.udp.Split(':');
+                    adr = adrPort[0];
+                    
+                    if(adrPort.Length > 1) {
+                        port = adrPort[1];
+                    }
+                }
+            }
+            
+            if( opts.address != null ) { adr  = opt.address; }
+            if( opts.port    != null ) { port = opt.port; }
+            
+            rdBtnUdpType_server.Checked = false;
+            rdBtnUdpType_client.Checked = false;
+            if ( opts.server != null )  { rdBtnUdpType_server.Checked = true; }
+            else                        { rdBtnUdpType_client.Checked = true; }
+            
+            txtBxMultAdr.Text = adr;
+            txtBxMultPort.Text = port;
+        }
+        
+        void setStreamCfgGUI_Mult(stream.Options opts) {
+            string adr = "";
+            string port = "";
+            
+            if( opts.mudp != null ) {
+                if( opts.mudp.Length > 0 ) {
+                    string[] adrPort = opts.mudp.Split(':');
+                    adr = adrPort[0];
+                    
+                    if(adrPort.Length > 1) {
+                        port = adrPort[1];
+                    }
+                }
+            }
+            
+            if( opts.address != null ) { adr  = opt.address; }
+            if( opts.port    != null ) { port = opt.port; }
+            
+            txtBxMultAdr.Text = adr;
+            txtBxMultPort.Text = port;
+        }
         
         void BtnTerminalClick(object sender, EventArgs e) {
             if( trm == null || !trm.IsHandleCreated ) {
