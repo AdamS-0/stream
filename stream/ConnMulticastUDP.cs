@@ -91,7 +91,7 @@ namespace stream {
                 // czyli tutaj akurat rekurencja do samej siebie
                 udpClient.BeginReceive(new AsyncCallback(ReceivedCallback), null);
             } catch (Exception ex) {
-                Console.Write(ex.Message);
+                Console.Write("<stream.error>[mudp rxClbck] " + ex.Message);
             }
         }
         

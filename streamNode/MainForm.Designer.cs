@@ -18,8 +18,9 @@ namespace streamNode
         private System.Windows.Forms.ToolStrip toolStrip1;
         private System.Windows.Forms.ToolStripDropDownButton toolStripLabel1;
         private System.Windows.Forms.Panel pConns;
-        private System.Windows.Forms.ToolStripMenuItem cfgToolStripMenuItem;
-        private System.Windows.Forms.ToolStripLabel toolStripLabel2;
+        private System.Windows.Forms.ToolStripMenuItem tlStrip_cfgLoad;
+        private System.Windows.Forms.ToolStripLabel tlStrip_AddNewConn;
+        private System.Windows.Forms.ToolStripMenuItem tlStrip_cfgSave;
         
         /// <summary>
         /// Disposes resources used by the form.
@@ -45,8 +46,9 @@ namespace streamNode
             this.richTextBox1 = new System.Windows.Forms.RichTextBox();
             this.toolStrip1 = new System.Windows.Forms.ToolStrip();
             this.toolStripLabel1 = new System.Windows.Forms.ToolStripDropDownButton();
-            this.cfgToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.toolStripLabel2 = new System.Windows.Forms.ToolStripLabel();
+            this.tlStrip_cfgLoad = new System.Windows.Forms.ToolStripMenuItem();
+            this.tlStrip_cfgSave = new System.Windows.Forms.ToolStripMenuItem();
+            this.tlStrip_AddNewConn = new System.Windows.Forms.ToolStripLabel();
             this.pConns = new System.Windows.Forms.Panel();
             this.toolStrip1.SuspendLayout();
             this.SuspendLayout();
@@ -64,7 +66,7 @@ namespace streamNode
             // 
             this.toolStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.toolStripLabel1,
-            this.toolStripLabel2});
+            this.tlStrip_AddNewConn});
             this.toolStrip1.Location = new System.Drawing.Point(0, 0);
             this.toolStrip1.Name = "toolStrip1";
             this.toolStrip1.Size = new System.Drawing.Size(564, 25);
@@ -74,23 +76,32 @@ namespace streamNode
             // toolStripLabel1
             // 
             this.toolStripLabel1.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.cfgToolStripMenuItem});
+            this.tlStrip_cfgLoad,
+            this.tlStrip_cfgSave});
             this.toolStripLabel1.Name = "toolStripLabel1";
             this.toolStripLabel1.Size = new System.Drawing.Size(96, 22);
             this.toolStripLabel1.Text = "Configuration";
             // 
-            // cfgToolStripMenuItem
+            // tlStrip_cfgLoad
             // 
-            this.cfgToolStripMenuItem.Name = "cfgToolStripMenuItem";
-            this.cfgToolStripMenuItem.Size = new System.Drawing.Size(151, 22);
-            this.cfgToolStripMenuItem.Text = "Configuration";
+            this.tlStrip_cfgLoad.Name = "tlStrip_cfgLoad";
+            this.tlStrip_cfgLoad.Size = new System.Drawing.Size(153, 22);
+            this.tlStrip_cfgLoad.Text = "Load";
+            this.tlStrip_cfgLoad.Click += new System.EventHandler(this.TlStrip_cfgLoadClick);
             // 
-            // toolStripLabel2
+            // tlStrip_cfgSave
             // 
-            this.toolStripLabel2.Name = "toolStripLabel2";
-            this.toolStripLabel2.Size = new System.Drawing.Size(31, 22);
-            this.toolStripLabel2.Text = "Add";
-            this.toolStripLabel2.Click += new System.EventHandler(this.ToolStripLabel2Click);
+            this.tlStrip_cfgSave.Name = "tlStrip_cfgSave";
+            this.tlStrip_cfgSave.Size = new System.Drawing.Size(153, 22);
+            this.tlStrip_cfgSave.Text = "Save";
+            this.tlStrip_cfgSave.Click += new System.EventHandler(this.TlStrip_cfgSaveClick);
+            // 
+            // tlStrip_AddNewConn
+            // 
+            this.tlStrip_AddNewConn.Name = "tlStrip_AddNewConn";
+            this.tlStrip_AddNewConn.Size = new System.Drawing.Size(31, 22);
+            this.tlStrip_AddNewConn.Text = "Add";
+            this.tlStrip_AddNewConn.Click += new System.EventHandler(this.TlStrip_AddNewConnClick);
             // 
             // pConns
             // 

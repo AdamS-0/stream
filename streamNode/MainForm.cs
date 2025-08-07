@@ -48,9 +48,6 @@ namespace streamNode {
             
             /* Send data to the local terminal */
             Console.Write(System.Text.Encoding.GetEncoding("windows-1256").GetString(dataOut, 0, dataLen));
-//            richTextBox1.AppendText(
-//               System.Text.Encoding.GetEncoding("windows-1256").GetString(dataOut)
-//            );
             
             /* Send data to other connections in this node */
             foreach( ConnPanel cp in conns ) {
@@ -60,7 +57,9 @@ namespace streamNode {
                 /* If writing was disabled, skip loop */
                 if( !cp.CanWrite() ) { continue; }
                 
-                cp.Send(ref dataOut, dataLen);
+                try {
+                    cp.Send(ref dataOut, dataLen);
+                } catch { Console.WriteLine("======"); }
             }
         }
         
@@ -76,9 +75,6 @@ namespace streamNode {
             }
         }
         
-        void ToolStripLabel2Click(object sender, EventArgs e) {
-            addNewConn();
-        }
         
         void MainFormLoad(object sender, EventArgs e) {
             if( pConns.Controls.Count <= 0 ) {
@@ -86,6 +82,71 @@ namespace streamNode {
             }
         }
         
+        
+        
+        
+        void WriteCfgToFile(string filePath) {
+            NodeCfg cfg = new NodeCfg();
+            
+            foreach( Control con in pConns.Controls ) {
+                if ( con.GetType() != typeof(ConnPanel) ) { continue; }
+                
+                cfg.conns.Add( ((ConnPanel)con).ToCfgNodeCon() );
+            }
+            
+            NodeCfg.SaveToFile(filePath, ref cfg);
+        }
+        
+        void loadCfgFromFile(string filePath) {
+            this.SuspendLayout();
+            
+            foreach( Control con in pConns.Controls ) {
+                try {
+                    ((ConnPanel)con).Close();
+                } catch {}
+            }
+
+            while( 0 < pConns.Controls.Count ) {
+                pConns.Controls.RemoveAt(0);
+            }            
+            
+            
+            NodeCfg cfg = NodeCfg.ReadFromFile(filePath);
+            foreach( NodeCfgConn nodeCfgCon in cfg.conns) {
+                ConnPanel connPanelI = ConnPanel.FromCfgNodeConn(nodeCfgCon);
+                
+                connPanelI.Dock = DockStyle.Top;
+                pConns.Controls.Add(connPanelI);
+                
+                connPanelI.DataReceived += delegate (ref byte[] dataOut, int dataLen) {
+                    DataReceived(connPanelI, ref dataOut, dataLen);
+                };
+                
+                conns.Add(connPanelI);
+            }
+            this.ResumeLayout();
+        }
+        
+        void TlStrip_cfgLoadClick(object sender, EventArgs e) {
+            OpenFileDialog ofd = new OpenFileDialog();
+            if( ofd.ShowDialog() == DialogResult.OK ) {
+                loadCfgFromFile( ofd.FileName );
+            }
+        }
+        
+        
+        void TlStrip_cfgSaveClick(object sender, EventArgs e) {
+            SaveFileDialog sfd = new SaveFileDialog();
+            if( sfd.ShowDialog() == DialogResult.OK ) {
+                WriteCfgToFile( sfd.FileName );
+            }
+        }
+        
+        void TlStrip_AddNewConnClick(object sender, EventArgs e) {
+            addNewConn();
+        }
+        
 
     }
+
 }

@@ -107,7 +107,9 @@ namespace stream {
             if( !_sp.IsOpen ) { return; }
             try {
                 _sp.Write(dataOut, 0, dataLen);
-            } catch {}
+            } catch (Exception ex) {
+                Console.WriteLine( "<stream.error>[com send] " + ex.Message );
+            }
         }
         
         
@@ -121,7 +123,7 @@ namespace stream {
                     this.DataReceived(ref dataIn, dataIn.Length);
                 }
             } catch (Exception ex) {
-                Console.WriteLine(ex.Message);
+                Console.WriteLine("<stream.error>[com rxClbck] " + ex.Message);
                 _isConnected = false;
             }
         }

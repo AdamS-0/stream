@@ -85,10 +85,14 @@ namespace stream {
         
         public override void Send(ref byte[] dataOut, int dataLen) {
             try {
-                tcp.Client.Send(dataOut, 0, dataLen, SocketFlags.None);
+                if( tcp != null ) {
+                    if( tcp.Client.Connected ) {
+                        tcp.Client.Send(dataOut, 0, dataLen, SocketFlags.None);
+                    }
+                }
             } catch (Exception ex) {
-                tcp.Close();
-                Console.WriteLine(ex.Message);
+                if( tcp != null ) { tcp.Close(); }
+                Console.WriteLine("<stream.error>[TCP send] " + ex.Message);
                 _isConnected = false;
             }
         }
@@ -136,7 +140,7 @@ namespace stream {
                 _isConnected = true;
             } catch (Exception ex) {
                 tcp.Close();
-                Console.WriteLine(ex.Message);
+                Console.WriteLine("<stream.error>[TCP rxClbck] " + ex.Message);
                 _isConnected = false;
             }
         }

@@ -14,6 +14,7 @@ using System.IO;
 using System.Reflection;
 using System.Threading;
 using System.Windows.Forms;
+using System.Xml.Serialization;
 
 namespace streamNode {
     /// <summary>
@@ -30,11 +31,16 @@ namespace streamNode {
         
         System.Windows.Forms.Timer timerStatus = new System.Windows.Forms.Timer();
         Process pr = new Process();
+        bool processStarted = false;
         
         Terminal trm = null;
         
         public ConnPanel() {
             InitializeComponent();
+            
+            cmbBxBaud.Items.AddRange( new string[]{
+                                         "4800", "9600", "19200", "38400", "57600", "115200", "230400", "460800", "921600" } );
+            
             timerStatus.Tick += timerStatus_tick;
             timerStatus.Interval = 500;
             
@@ -90,9 +96,9 @@ namespace streamNode {
             pr.StartInfo.CreateNoWindow = true;
             pr.EnableRaisingEvents = true;
             
-            
+            processStarted = pr.Start();
                 
-            if( pr.Start() ) {
+            if( processStarted ) {
                 btnOpen.Text = "Close";
                 procWorking = true;
                 timerStatus.Start();
@@ -115,14 +121,16 @@ namespace streamNode {
         
         void processExited(object sender, EventArgs e) {
             procWorking = false;
+            processStarted = false;
         }
         
         void timerStatus_tick(object sender, EventArgs e) {
             if( procWorking ) {
-                pCfg.Enabled = false;
+                btnDelete.Enabled = grpBxCfgArgsLine.Enabled = pCfg.Enabled = false;
+                
                 btnOpen.Text = "Close";
             } else {
-                pCfg.Enabled = true;
+                btnDelete.Enabled = grpBxCfgArgsLine.Enabled = pCfg.Enabled = true;
                 btnOpen.Text = "Open";
                 timerStatus.Stop();
             }
@@ -131,15 +139,11 @@ namespace streamNode {
         
         public void Send(ref byte[] dataOut, int dataLen) {
             try {
-                pr.StandardInput.Write(System.Text.Encoding.GetEncoding("windows-1256").GetString(dataOut, 0, dataLen));
-            } catch { }
+                if( processStarted ) {
+                    pr.StandardInput.Write(System.Text.Encoding.GetEncoding("windows-1256").GetString(dataOut, 0, dataLen));
+                }
+            } catch { Console.WriteLine( "Error during connPanel send!" ); }
         }
-        
-        
-        void DataReceivedFromProcess(object sender, DataReceivedEventArgs e) {
-
-        }
-        
         
         void threadWaitForData() {
             int len2copy = 0;
@@ -199,6 +203,9 @@ namespace streamNode {
             else if ( rdBtnTCP.Checked      ) { getOptionsFromGUI_TCP(ref opts); }
             else if ( rdBtnUDP.Checked      ) { getOptionsFromGUI_UDP(ref opts); }
             else if ( rdBtnMult.Checked     ) { getOptionsFromGUI_Mult(ref opts); }
+            
+            if( chkBxReconnect.Checked ) { opts.reconnect = ""; }
+            else                         { opts.reconnect = null; }
         }
         
         
@@ -335,6 +342,10 @@ namespace streamNode {
             else if ( opt.tcp  != null ) { setStreamCfgGUI_Tcp(opt); }
             else if ( opt.udp  != null ) { setStreamCfgGUI_Udp(opt); }
             else if ( opt.mudp != null ) { setStreamCfgGUI_Mult(opt); }
+            
+            if( opt.reconnect != null ) { chkBxReconnect.Checked = true; }
+            else                        { chkBxReconnect.Checked = false; }
+            
         }
         
         
@@ -389,6 +400,10 @@ namespace streamNode {
                 else if ( stopBits == "onepointfive" || stopBits == "1.5" ) { rdBtnStopBits_1_5.Checked = true; }
             }
             
+            rdBtnSerial.Checked = true;
+            rdBtnTCP   .Checked = false;
+            rdBtnUDP   .Checked = false;
+            rdBtnMult  .Checked = false;
         }
         
         void setStreamCfgGUI_Tcp(stream.Options opts) {
@@ -414,8 +429,13 @@ namespace streamNode {
             if ( opts.server != null )  { rdBtnTCPType_server.Checked = true; }
             else                        { rdBtnTCPType_client.Checked = true; }
             
-            txtBxMultAdr.Text = adr;
-            txtBxMultPort.Text = port;
+            txtBxTcpAdr.Text = adr;
+            txtBxTcpPort.Text = port;
+            
+            rdBtnSerial.Checked = false;
+            rdBtnTCP   .Checked = true;
+            rdBtnUDP   .Checked = false;
+            rdBtnMult  .Checked = false;
         }
         
         void setStreamCfgGUI_Udp(stream.Options opts) {
@@ -441,8 +461,13 @@ namespace streamNode {
             if ( opts.server != null )  { rdBtnUdpType_server.Checked = true; }
             else                        { rdBtnUdpType_client.Checked = true; }
             
-            txtBxMultAdr.Text = adr;
-            txtBxMultPort.Text = port;
+            txtBxUdpAdr.Text = adr;
+            txtBxUdpPort.Text = port;
+            
+            rdBtnSerial.Checked = false;
+            rdBtnTCP   .Checked = false;
+            rdBtnUDP   .Checked = true;
+            rdBtnMult  .Checked = false;
         }
         
         void setStreamCfgGUI_Mult(stream.Options opts) {
@@ -465,6 +490,11 @@ namespace streamNode {
             
             txtBxMultAdr.Text = adr;
             txtBxMultPort.Text = port;
+            
+            rdBtnSerial.Checked = false;
+            rdBtnTCP   .Checked = false;
+            rdBtnUDP   .Checked = false;
+            rdBtnMult  .Checked = true;
         }
         
         void BtnTerminalClick(object sender, EventArgs e) {
@@ -486,6 +516,40 @@ namespace streamNode {
             } catch { }
         }
 
+        
+        
+        
+        
+        public NodeCfgConn ToCfgNodeCon() {
+            NodeCfgConn cfgNodeCon = new NodeCfgConn();
+            
+            cfgNodeCon.name = txtBxName.Text;
+            cfgNodeCon.allowIn = chkBxRead.Checked;
+            cfgNodeCon.allowOut = chkBxWrite.Checked;
+            
+            getOptionsFromGUI( ref opt );
+            cfgNodeCon.streamCfg = getStrArgsFromOptions(opt);
+            
+            return cfgNodeCon;
+        }
+        
+        public static ConnPanel FromCfgNodeConn(NodeCfgConn cfgNodeCon) {
+            ConnPanel connPanel = new ConnPanel();
+            
+            connPanel.txtBxName.Text = cfgNodeCon.name;
+            connPanel.chkBxRead.Checked = cfgNodeCon.allowIn;
+            connPanel.chkBxWrite.Checked = cfgNodeCon.allowOut;
+            connPanel.loadStreamCfgFromString(cfgNodeCon.streamCfg);
+            connPanel.txtBxCfg.Text = cfgNodeCon.streamCfg;
+            
+            return connPanel;
+        }
+        
+        
+        void BtnDeleteClick(object sender, EventArgs e) {
+            this.Close();
+            this.Parent.Controls.Remove(this);
+        }
         
     }
 }

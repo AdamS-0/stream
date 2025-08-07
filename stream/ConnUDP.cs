@@ -124,7 +124,7 @@ namespace stream {
                 }
                 _isConnected = true;
             } catch (Exception ex) {
-                Console.WriteLine(ex.Message);
+                Console.WriteLine("<stream.error>[UDP rxClbck] " + ex.Message);
                 _isConnected = false;
             }
         }
