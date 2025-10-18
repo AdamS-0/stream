@@ -144,6 +144,7 @@ namespace streamNode
             this.Controls.Add(this.txtBxData2Send);
             this.Name = "Terminal";
             this.Text = "Terminal";
+            this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.TerminalFormClosing);
             this.toolStrip1.ResumeLayout(false);
             this.toolStrip1.PerformLayout();
             this.ResumeLayout(false);
