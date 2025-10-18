@@ -16,6 +16,8 @@ using System.Reflection;
 using System.Text;
 using System.Threading;
 
+using System.Linq;
+
 using CommandLineParser;
 
 namespace stream {
@@ -30,6 +32,10 @@ namespace stream {
         static Aliases aliases = new Aliases();
         
         static string aliasFile = "streamAliases.cfg";
+        
+        /* Commands input:
+         * stream<<{command}:[params]*/
+        static string commandPrompter = "stream<<";
         
         public static void Main(string[] args) {            
             byte[] dataOut = new byte[1024];
@@ -93,10 +99,15 @@ namespace stream {
                 while (status) {
                     Thread.Sleep(10);
                     while ((len2copy = inStream.Read(dataOut, 0, 1024)) > 0) {
+                        if ( len2copy > commandPrompter.Length ) {
+                            tryCheckCommand(ref dataOut, ref len2copy);
+                        }
                         conn.Send(ref dataOut, len2copy);
                     }
                 }
-            } catch {}
+            } catch (Exception ex) {
+                Console.WriteLine("stream>[Error]: " + ex.Message );
+            }
         }
         
         static void TaskReconnect() {
@@ -220,6 +231,61 @@ namespace stream {
             }
             return true;
             
+        }
+        
+        
+        /// <summary>
+        /// Parse commands from console input
+        /// </summary>
+        /// <param name="dataOut">Array of bytes</param>
+        /// <param name="dataLen">Number of received bytes. When command parsed successfully, this value will be changed</param>
+        /// <returns></returns>
+        static bool tryCheckCommand(ref byte[] dataOut, ref int dataLen) {
+            string  command     = "";
+            int     startIdx    = 0;
+            string  line        = Encoding.ASCII.GetString(dataOut);
+            
+            if ( !line.Substring(0, commandPrompter.Length).Equals(commandPrompter) ) { return false; }
+            
+            /* Line starts with commandPrompter */
+            startIdx = commandPrompter.Length;
+            
+            /* Trim line to command (after "stream<<") */
+            line = line.Substring(startIdx);
+            
+            return parseCommand(line, ref dataOut, ref dataLen);
+        }
+        
+        static bool parseCommand(string line, ref byte[] dataOut, ref int dataLen) {
+            int     startIdx    = line.IndexOf(':');
+            string  cmd         = "";
+            
+            if ( ( startIdx < 0 ) || ( startIdx >= line.Length ) ) { return false; }
+            /* Found ':' in line */
+            
+            int strEnd_idx = line.IndexOf('\0');
+            if ( ( strEnd_idx > 0 ) && ( strEnd_idx < line.Length ) ) {
+                line = line.Substring( 0, strEnd_idx );
+            }
+            
+            cmd = line.Substring(0, startIdx);
+            
+            if ( cmd.Equals("send_file") ) {
+                string filePath2Send = line.Substring(startIdx + 1);
+                
+                filePath2Send = new string(filePath2Send.Where(c => !char.IsControl(c)).ToArray());
+                
+                if ( !File.Exists( filePath2Send ) ) { return false; }
+                /* File exists */
+                dataLen = 0;
+                
+                byte[] fileBytes = File.ReadAllBytes( filePath2Send );
+                conn.Send(ref fileBytes, fileBytes.Length);
+                Console.WriteLine("stream>[Info]Send Ok");
+                return true;
+            }
+            Console.WriteLine("stream>[Warning] Unknown command");
+            return false;
         }
     }
     
