@@ -57,7 +57,7 @@ namespace stream {
         public string list { get; set; }
         
         
-        [Parameter(ParameterAlias = "t", HelpText = "TCP client/server",
+        [Parameter(ParameterAlias = "t", HelpText = "TCP client (default) / server",
             ArgumentName = "address:port", ArgumentRequired = false)]
         public string tcp { get; set; }
         
@@ -65,7 +65,7 @@ namespace stream {
                    ArgumentName = "address:port", ArgumentRequired = false)]
         public string mudp { get; set; }
         
-        [Parameter(ParameterAlias = "u", HelpText = "UDP connection",
+        [Parameter(ParameterAlias = "u", HelpText = "UDP connection as client (default) / server",
                    ArgumentName = "address:port", ArgumentRequired = false)]
         public string udp { get; set; }
         
@@ -85,6 +85,8 @@ namespace stream {
                    ArgumentRequired = false)]
         public string server { get; set; }
 
-        
+        [Parameter(ParameterAlias = "ttl", HelpText = "Time To Live, default 1",
+                   ArgumentRequired = false)]
+        public string ttl { get; set; }
     }
 }

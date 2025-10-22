@@ -31,6 +31,8 @@ namespace stream {
         
         bool asServer = false;
         
+        short ttl = 1;
+        
         public ConnUDP() {
         }
         
@@ -74,6 +76,15 @@ namespace stream {
             
             if ( opt.server != null ) { asServer = true; }
             
+            if ( opt.ttl != null ) {
+                try {
+                    ttl = (short)Convert.ToInt16(opt.ttl);
+                } catch {
+                    Console.WriteLine("Incorrect value for '-ttl': {" + opt.ttl + "}");
+                    return false;
+                }
+            }
+            
             return true;
         }
         
@@ -99,6 +110,8 @@ namespace stream {
                 if( asServer ) {
                     _socket = new Socket(AddressFamily.InterNetwork, SocketType.Dgram, ProtocolType.Udp);
                     _socket.SetSocketOption(SocketOptionLevel.IP, SocketOptionName.ReuseAddress, true);
+                    _socket.Ttl = ttl;
+                    _socket.SetSocketOption(SocketOptionLevel.IP, SocketOptionName.IpTimeToLive, ttl);
                     _socket.Bind(new IPEndPoint(IPAddress.Parse(_IPAddr), _IPPort));
                 } else {
                     _socket.Connect(IPAddress.Parse(_IPAddr), _IPPort);

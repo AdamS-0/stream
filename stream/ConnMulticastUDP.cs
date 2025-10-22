@@ -25,6 +25,8 @@ namespace stream {
         static IPEndPoint localEP;
         static IPEndPoint remoteEP;
         
+        short ttl = 1;
+        
         public ConnMulticastUDP() {
             
         }
@@ -67,6 +69,15 @@ namespace stream {
                 }
             } else { opt.port = ipPort; }
             
+            if ( opt.ttl != null ) {
+                try {
+                    ttl = (short)Convert.ToInt16(opt.ttl);
+                } catch {
+                    Console.WriteLine("Incorrect value for '-ttl': {" + opt.ttl + "}");
+                    return false;
+                }
+            }
+            
             return true;
         }
         
@@ -107,6 +118,9 @@ namespace stream {
             // umozliwienie wielu aplikacjom dostępu do jednego portu
             udpClient.Client.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.ReuseAddress, true);
             udpClient.ExclusiveAddressUse = false;
+            
+            udpClient.Client.Ttl = ttl;
+            udpClient.Client.SetSocketOption(SocketOptionLevel.IP, SocketOptionName.IpTimeToLive, ttl);
             
             // podpięcie klienta do nasłuchiwania
             udpClient.Client.Bind(localEP);

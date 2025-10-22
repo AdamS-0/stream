@@ -9,6 +9,8 @@
 using System;
 using System.Net;
 using System.Net.Sockets;
+using System.Threading;
+using System.Collections.Generic;
 
 namespace stream {
     /// <summary>
@@ -28,6 +30,10 @@ namespace stream {
         string _IPAddr = "";
         int _IPPort = 0;
         bool asServer = false;
+        
+        short ttl = 1;
+        
+        List<ClientContext> clients = new List<ClientContext>();
         
         public ConnTCP() {
         }
@@ -79,13 +85,24 @@ namespace stream {
             
             if ( opt.server != null ) { asServer = true; }
             
+            if ( opt.ttl != null ) {
+                try {
+                    ttl = (short)Convert.ToInt16(opt.ttl);
+                } catch {
+                    Console.WriteLine("Incorrect value for '-ttl': {" + opt.ttl + "}");
+                    return false;
+                }
+            }
+            
             return true;
         }
         
         
         public override void Send(ref byte[] dataOut, int dataLen) {
             try {
-                if( tcp != null ) {
+                if ( asServer ) {
+                    asServerSendToClients(ref dataOut, dataLen);
+                } else if ( tcp != null ) {
                     if( tcp.Client.Connected ) {
                         tcp.Client.Send(dataOut, 0, dataLen, SocketFlags.None);
                     }
@@ -96,7 +113,6 @@ namespace stream {
                 _isConnected = false;
             }
         }
-        
         
         
         public override bool Open() {
@@ -110,16 +126,21 @@ namespace stream {
                     }
                     
                     server = new TcpListener(IPAddress.Parse(_IPAddr), _IPPort);
-                    
+                    server.Server.Ttl = ttl;
+                    server.Server.SetSocketOption(SocketOptionLevel.IP, SocketOptionName.IpTimeToLive, ttl);
                     server.Start();
                     Console.WriteLine("Waiting for client...");
-                    tcp = server.AcceptTcpClient();
+                    
+                    server.BeginAcceptTcpClient(OnClientAccepted, server);
                 } else {
                     Console.WriteLine("Connecting to the TCP server: {0}:{1} ...", _IPAddr, _IPPort);
                     tcp = new TcpClient(_IPAddr, _IPPort);
+                    tcp.Client.Ttl = ttl;
+                    tcp.Client.SetSocketOption(SocketOptionLevel.IP, SocketOptionName.IpTimeToLive, ttl);
+                    
+                    _isConnected = true;
+                    tcp.Client.BeginReceive(state.buffer, 0, bufSize, SocketFlags.None, new AsyncCallback(ReceivedCallback), state);
                 }
-                _isConnected = true;
-                tcp.Client.BeginReceive(state.buffer, 0, bufSize, SocketFlags.None, new AsyncCallback(ReceivedCallback), state);
             } catch (Exception ex) {
                 tcp.Close();
                 Console.WriteLine(ex.Message);
@@ -144,5 +165,72 @@ namespace stream {
                 _isConnected = false;
             }
         }
+        
+        
+        private void ReceivedCallbackAsServer(IAsyncResult ar) {
+            try {
+                ClientContext context = (ClientContext)ar.AsyncState;
+                int bytes = context.Client.Client.EndReceiveFrom(ar, ref epFrom);
+                context.Client.Client.BeginReceive(context.buffer, 0, ClientContext.bufSizeAsServerPerClient,
+                                                   SocketFlags.None, new AsyncCallback(ReceivedCallbackAsServer), context);
+                if( this.DataReceived != null ) {
+                    this.DataReceived(ref context.buffer, bytes);
+                }
+                
+                
+                asServerSendToClients( ref context.buffer, bytes, context );
+                    
+                _isConnected = true;
+            } catch (Exception ex) {
+                tcp.Close();
+                Console.WriteLine("<stream.error>[TCP Client rxClbck] " + ex.Message);
+                _isConnected = false;
+            }
+        }
+        
+        
+        
+        void OnClientAccepted(IAsyncResult ar) {
+            TcpListener listener = ar.AsyncState as TcpListener;
+            if (listener == null) return;
+            
+            try {
+                ClientContext context = new ClientContext();
+                context.Client = server.EndAcceptTcpClient(ar);
+                context.Client.Client.Ttl = ttl;
+                context.Client.Client.SetSocketOption(SocketOptionLevel.IP, SocketOptionName.IpTimeToLive, ttl);
+                context.Client.Client.BeginReceive(context.buffer, 0, ClientContext.bufSizeAsServerPerClient,
+                                                   SocketFlags.None, new AsyncCallback(ReceivedCallbackAsServer), context);
+                clients.Add(context);
+                Console.WriteLine("<stream.info>[TCP Srv OnCLientAccepted] new connection from " + context.Client.Client.RemoteEndPoint.ToString() );
+            }
+            catch (Exception ex) {
+                Console.WriteLine("<stream.error>[TCP Srv onClientAccepted] " + ex);
+            } 
+            finally {
+                server.BeginAcceptTcpClient(OnClientAccepted, server);
+            }
+        }
+        
+        void asServerSendToClients(ref byte[] dataOut, int dataLen, ClientContext sender = null) {
+            foreach ( ClientContext cli in clients ) {
+                if ( sender != null ) {
+                    if ( cli == sender ) { continue; }
+                }
+                
+                try {
+                    if( cli.Client.Connected ) {
+                        cli.Client.Client.Send(dataOut, 0, dataLen, SocketFlags.None);
+                    }
+                } catch { }
+            }
+        }
+        
+    }
+    
+    class ClientContext {
+        public TcpClient Client = new TcpClient();
+        public const int bufSizeAsServerPerClient = 8 * 1024;
+        public byte[] buffer = new byte[bufSizeAsServerPerClient];
     }
 }
