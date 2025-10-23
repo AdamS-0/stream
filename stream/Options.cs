@@ -34,6 +34,9 @@ namespace stream {
                    ArgumentRequired = false)]
         public string echo { get; set; }
         
+        [Parameter(HelpText = "Do not use colors", ArgumentRequired = false)]
+        public string noColors { get; set; }
+        
         
         [Parameter(ParameterAlias = "c", HelpText = "Serial port connection",
                    ArgumentName = "COM port", ArgumentRequired = false)]

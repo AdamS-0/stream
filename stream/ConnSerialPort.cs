@@ -24,13 +24,13 @@ namespace stream {
             } catch { return false; }
         }
         
-        public override bool Prepare(ref Options opt) {
+        public override bool Prepare(ref Options opt, bool useColors = true) {
             string paramValue = "";
             int stopBits = 0;
             string portName = "";
             
             if (opt.list != null) {
-                SerialPortUtils.ShowAllPorts();
+                SerialPortUtils.ShowAllPorts(useColors);
                 return false;
             }
             

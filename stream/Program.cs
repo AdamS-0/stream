@@ -30,6 +30,11 @@ namespace stream {
     
     class Program {
         
+        static string CL_RESET  = "\x1B[0m";
+        static string CL_RED    = "\x1B[31m";
+        static string CL_YEL    = "\x1B[93m";
+        static string CL_GREEN  = "\x1B[32m";
+        
         static IPAddress localAddress = IPAddress.Any;
         static Stream strm = Console.OpenStandardOutput();
         static Connection conn;
@@ -37,6 +42,7 @@ namespace stream {
         static int reconnectTimeout = 1000;
         static bool redirectStdInputToStdOutput = false;
         static Aliases aliases = new Aliases();
+        static bool useColors = true;
         
         static string aliasFile = "streamAliases.cfg";
         
@@ -44,7 +50,7 @@ namespace stream {
          * stream<<{command}:[params]*/
         static string commandPrompter = "stream<<";
         
-        public static void Main(string[] args) {            
+        public static void Main(string[] args) {
             byte[] dataOut = new byte[1024];
             int len2copy = 0;
             bool status = true;
@@ -57,6 +63,7 @@ namespace stream {
             Options opt = CommandLineParser.CommandLineParser.ParseArguments<Options>(args);
             
             if( opt.echo != null) { redirectStdInputToStdOutput = true; }
+            if( opt.noColors != null) { useColors = false; }
 
             if( (opt.alias != null) && (opt.list != null) ) {
                 /* Show alias list */
@@ -77,7 +84,7 @@ namespace stream {
             
             conn.ReportedInternalMessage += reportedInternalMessage;
             
-            status = conn.Prepare(ref opt);
+            status = conn.Prepare(ref opt, useColors);
             
             if( opt.alias != null ) {
                 /* Serve aliases. If returned false, just exit the programm */
@@ -123,9 +130,30 @@ namespace stream {
         
         
         
+        static string getColorFromMsgType(InterenalMessageType msgType) {
+            switch (msgType) {
+                case InterenalMessageType.Error     : return CL_RED;
+                case InterenalMessageType.Warning   : return CL_YEL;
+                case InterenalMessageType.Info      : return CL_GREEN;
+            }
+            return "";
+        }
         /* "<stream.{msgType}>[{moduleSender}] {message}" */
-        static void reportedInternalMessage(InterenalMessageType msgType, string moduleSender, string message, bool newLine = true) {
-            Console.Write( "<stream." + msgType.ToString() + ">[" + moduleSender + "] " + message + (newLine ? "\r\n" : "") );
+        static void reportedInternalMessage(InterenalMessageType msgType, string moduleSender, string message, bool newLine = true) {           
+            string msg = "";
+            
+            if ( useColors ) { msg += getColorFromMsgType(msgType); }
+            msg += "<stream." + msgType.ToString() + ">";
+            
+            if ( useColors ) { msg += CL_RESET; }
+            
+            msg += "[" + moduleSender + "] " + message + (newLine ? "\r\n" : "");
+            
+            if ( useColors ) { Console.Write( msg );
+            } else {
+                switch (msgType) {
+                }
+            }
         }
         
         

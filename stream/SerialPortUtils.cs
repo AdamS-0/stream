@@ -99,7 +99,7 @@ namespace stream {
             Serial_GetAllPhysicalPorts(ref portsList);
         }
         
-        public static void ShowAllPorts() {
+        public static void ShowAllPorts(bool useColors = true) {
             string CL_RESET = "\x1B[0m";
             string CL_RED   = "\x1B[31m";
             string CL_GREEN = "\x1B[32m";
@@ -133,18 +133,26 @@ namespace stream {
                     SerialPort spi = new SerialPort();
                     spi.PortName = ci.Name;
                     
-                    try {
-                        spi.Open();
-                        portInUse = false;
-                        spi.Close();
-                    } catch {}
+                    if ( useColors ) {
+                        try {
+                            spi.Open();
+                            portInUse = false;
+                            spi.Close();
+                        } catch {}
+                    }
+                    
+                    string strName = "";
+                    
+                    if ( useColors ) { strName += (portInUse ? CL_RED : CL_GREEN); }
+                    strName += ci.Name;
+                    if ( useColors ) { strName += CL_RESET; }
                     
                     Console.WriteLine(
                         "{0,-" + SerialPortConnInfo.maxSizeName + "}  " +
                         "{1,-" + SerialPortConnInfo.maxSizeDesc + "}  " +
                         "{2,-" + SerialPortConnInfo.maxSizeManuf + "}  " +
                         "{3,-" + SerialPortConnInfo.maxSizeDevID + "}",
-                        (portInUse ? CL_RED : CL_GREEN) + ci.Name + CL_RESET, ci.Description, ci.Manufacturer, ci.DevID);
+                        strName, ci.Description, ci.Manufacturer, ci.DevID);
                 }
             } catch {}
         }

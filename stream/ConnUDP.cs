@@ -36,7 +36,7 @@ namespace stream {
         public ConnUDP() {
         }
         
-        public override bool Prepare(ref Options opt) {
+        public override bool Prepare(ref Options opt, bool useColors = true) {
             string ipPort = "";
             
             if (opt.udp != null) {

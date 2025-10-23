@@ -26,7 +26,7 @@ namespace stream {
         
         public Connection() { }
         
-        public virtual bool Prepare(ref Options opt) { return false; }
+        public virtual bool Prepare(ref Options opt, bool useColors = true) { return false; }
         
         public virtual void Send(ref byte[] dataOut, int dataLen) { }
         
