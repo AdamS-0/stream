@@ -105,16 +105,28 @@ namespace stream {
             string CL_GREEN = "\x1B[32m";
             
             List<SerialPortConnInfo> conns = new List<SerialPortConnInfo>();
+            List<SerialPortConnInfo> connsOrg = new List<SerialPortConnInfo>();
             
             try {
-                Serial_GetAllPorts(ref conns);
+                Serial_GetAllPorts(ref connsOrg);
                 Console.WriteLine("{0,-" + SerialPortConnInfo.maxSizeName + "}  " +
                                   "{1,-" + SerialPortConnInfo.maxSizeDesc + "}  " +
                                   "{2,-" + SerialPortConnInfo.maxSizeManuf + "}  " +
                                   "{3,-" + SerialPortConnInfo.maxSizeDevID + "}",
                                   "Name", "Description", "Manufacturer", "Device ID");
                 
-                conns.Sort((x, y) => x.Name.CompareTo(y.Name));
+                connsOrg.Sort((x, y) => x.Name.CompareTo(y.Name));
+                
+                //
+                for ( int idx = 0; idx < connsOrg.Count; idx++ ) {
+                    if ( conns.Exists( e => e.Name == connsOrg[idx].Name ) ) {
+                        continue;
+                    }
+                    
+                    /* Add new unique connection info */
+                    conns.Add( connsOrg[idx] );
+                }
+                //
                 
                 foreach( SerialPortConnInfo ci in conns ) {
                     bool portInUse = true;
