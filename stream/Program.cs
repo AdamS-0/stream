@@ -28,7 +28,7 @@ namespace stream {
         static Connection conn;
         static bool tryToReconnect = false;
         static int reconnectTimeout = 1000;
-        
+        static bool redirectStdInputToStdOutput = false;
         static Aliases aliases = new Aliases();
         
         static string aliasFile = "streamAliases.cfg";
@@ -47,10 +47,7 @@ namespace stream {
             
             Options opt = CommandLineParser.CommandLineParser.ParseArguments<Options>(args);
             
-//            if( opt.alias != null ) {
-//                /* Serve aliases. If returned false, just exit the programm */
-//                if( !ServeAliases(ref opt) ) { return; }
-//            }
+            if( opt.echo != null) { redirectStdInputToStdOutput = true; }
 
             if( (opt.alias != null) && (opt.list != null) ) {
                 /* Show alias list */
@@ -103,6 +100,9 @@ namespace stream {
                             tryCheckCommand(ref dataOut, ref len2copy);
                         }
                         conn.Send(ref dataOut, len2copy);
+                        if ( redirectStdInputToStdOutput ) {
+                            strm.Write(dataOut, 0, len2copy);
+                        }
                     }
                 }
             } catch (Exception ex) {

@@ -26,6 +26,14 @@ namespace stream {
                    ArgumentName = "timeout ms", ArgumentRequired = false)]
         public string reconnect { get; set; }
         
+        [Parameter(ParameterAlias = "l", HelpText = "List al serial ports/aliases", 
+                   ArgumentRequired = false)]
+        public string list { get; set; }
+        
+        [Parameter(ParameterAlias = "e", HelpText = "Print standardInput also on standardOutput", 
+                   ArgumentRequired = false)]
+        public string echo { get; set; }
+        
         
         [Parameter(ParameterAlias = "c", HelpText = "Serial port connection",
                    ArgumentName = "COM port", ArgumentRequired = false)]
@@ -51,10 +59,6 @@ namespace stream {
         [Parameter(HelpText = "Serial port stop bits", 
                    ArgumentName = "stopBits", ArgumentRequired = true)]
         public string stopBits { get; set; }
-        
-        [Parameter(ParameterAlias = "l", HelpText = "List al serial ports", 
-                   ArgumentName = "list", ArgumentRequired = false)]
-        public string list { get; set; }
         
         
         [Parameter(ParameterAlias = "t", HelpText = "TCP client (default) / server",
