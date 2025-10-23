@@ -53,7 +53,8 @@ namespace stream {
                 try {
                     _sp.BaudRate = Convert.ToInt32(opt.baud);
                 } catch {
-                    Console.WriteLine("Incorrect value for '--baud': {" + opt.baud + "}");
+                    ReportInternalMessage(InterenalMessageType.Error, "SerialPort.Initializer",
+                      "Incorrect value for '--baud': {" + opt.baud + "}");
                     return false;
                 }
             }
@@ -66,7 +67,8 @@ namespace stream {
                 else if ( paramValue == "mark"  ) { _sp.Parity = Parity.Mark;  }
                 else if ( paramValue == "space" ) { _sp.Parity = Parity.Space; }
                 else {
-                    Console.WriteLine("Incorrect value for '--parity': {" + opt.parity + "}");
+                    ReportInternalMessage(InterenalMessageType.Error, "SerialPort.Initializer",
+                      "Incorrect value for '--parity': {" + opt.parity + "}");
                     return false;
                 }
             }
@@ -75,7 +77,8 @@ namespace stream {
                 try {
                     _sp.DataBits = Convert.ToInt32(opt.dataBits);
                 } catch {
-                    Console.WriteLine("Incorrect value for '--dataBits': {" + opt.dataBits + "}");
+                    ReportInternalMessage(InterenalMessageType.Error, "SerialPort.Initializer",
+                      "Incorrect value for '--dataBits': {" + opt.dataBits + "}");
                     return false;
                 }
             }
@@ -94,7 +97,8 @@ namespace stream {
                         else if ( stopBits == 1         ) { _sp.StopBits = StopBits.One;            }
                         else if ( stopBits == 2         ) { _sp.StopBits = StopBits.Two;            }
                     } catch {
-                        Console.WriteLine("Incorrect value for '--stopBits': {" + opt.stopBits + "}");
+                        ReportInternalMessage(InterenalMessageType.Error, "SerialPort.Initializer",
+                          "Incorrect value for '--stopBits': {" + opt.stopBits + "}");
                         return false;
                     }
                 }
@@ -108,7 +112,8 @@ namespace stream {
             try {
                 _sp.Write(dataOut, 0, dataLen);
             } catch (Exception ex) {
-                Console.WriteLine( "<stream.error>[com send] " + ex.Message );
+                ReportInternalMessage(InterenalMessageType.Error, "SerialPort.Send",
+                      ex.Message );
             }
         }
         
@@ -123,7 +128,8 @@ namespace stream {
                     this.DataReceived(ref dataIn, dataIn.Length);
                 }
             } catch (Exception ex) {
-                Console.WriteLine("<stream.error>[com rxClbck] " + ex.Message);
+                ReportInternalMessage(InterenalMessageType.Error, "SerialPort.DataRxCallback",
+                      ex.Message );
                 _isConnected = false;
             }
         }

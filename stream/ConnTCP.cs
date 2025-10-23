@@ -58,7 +58,8 @@ namespace stream {
                             ipPort = parts [ 1 ];
                             _IPPort = Convert.ToInt32(parts [ 1 ]);
                         } catch {
-                            Console.WriteLine("Error durign IPAddress parsing!");
+                            ReportInternalMessage(InterenalMessageType.Error, "TCP.Initializer",
+                                "Error durign IPAddress parsing!");
                             return false;
                         }
                     }
@@ -69,7 +70,8 @@ namespace stream {
                 if (opt.address.Length > 0) {
                     _IPAddr = opt.address;
                 } else {
-                    Console.WriteLine("Invalid IPv4 address!");
+                    ReportInternalMessage(InterenalMessageType.Error, "TCP.Initializer",
+                        "Invalid IPv4 address!");
                     return false;
                 }
             } else { opt.address = _IPAddr; }
@@ -78,7 +80,8 @@ namespace stream {
                 try {
                     _IPPort = Convert.ToInt32(opt.port);
                 } catch {
-                    Console.WriteLine("Incorrect value for '--port': {" + opt.port + "}");
+                    ReportInternalMessage(InterenalMessageType.Error, "TCP.Initializer",
+                        "Incorrect value for '--port': {" + opt.port + "}");
                     return false;
                 }
             } else { opt.port = ipPort; }
@@ -89,7 +92,8 @@ namespace stream {
                 try {
                     ttl = (short)Convert.ToInt16(opt.ttl);
                 } catch {
-                    Console.WriteLine("Incorrect value for '-ttl': {" + opt.ttl + "}");
+                    ReportInternalMessage(InterenalMessageType.Error, "TCP.Initializer",
+                        "Incorrect value for '-ttl': {" + opt.ttl + "}");
                     return false;
                 }
             }
@@ -109,7 +113,8 @@ namespace stream {
                 }
             } catch (Exception ex) {
                 if( tcp != null ) { tcp.Close(); }
-                Console.WriteLine("<stream.error>[TCP send] " + ex.Message);
+                ReportInternalMessage(InterenalMessageType.Error, "TCP.Send",
+                    ex.Message);
                 _isConnected = false;
             }
         }
@@ -129,11 +134,15 @@ namespace stream {
                     server.Server.Ttl = ttl;
                     server.Server.SetSocketOption(SocketOptionLevel.IP, SocketOptionName.IpTimeToLive, ttl);
                     server.Start();
-                    Console.WriteLine("Waiting for client...");
+                    Console.WriteLine();
+                    ReportInternalMessage(InterenalMessageType.Info, "TCP.Srv.Open",
+                        "Waiting for clients...");
                     
                     server.BeginAcceptTcpClient(OnClientAccepted, server);
                 } else {
-                    Console.WriteLine("Connecting to the TCP server: {0}:{1} ...", _IPAddr, _IPPort);
+                    Console.WriteLine();
+                    ReportInternalMessage(InterenalMessageType.Info, "TCP.Cl.Open",
+                        "Connecting to the TCP server: " + _IPAddr + ":" + _IPPort + " ...");
                     tcp = new TcpClient(_IPAddr, _IPPort);
                     tcp.Client.Ttl = ttl;
                     tcp.Client.SetSocketOption(SocketOptionLevel.IP, SocketOptionName.IpTimeToLive, ttl);
@@ -143,7 +152,8 @@ namespace stream {
                 }
             } catch (Exception ex) {
                 tcp.Close();
-                Console.WriteLine(ex.Message);
+                ReportInternalMessage(InterenalMessageType.Error, "TCP.Open",
+                        ex.Message);
                 _isConnected = false;
             }
             
@@ -161,7 +171,8 @@ namespace stream {
                 _isConnected = true;
             } catch (Exception ex) {
                 tcp.Close();
-                Console.WriteLine("<stream.error>[TCP rxClbck] " + ex.Message);
+                ReportInternalMessage(InterenalMessageType.Error, "TCP.Cl.DataRxCallback",
+                        ex.Message);
                 _isConnected = false;
             }
         }
@@ -183,7 +194,8 @@ namespace stream {
                 _isConnected = true;
             } catch (Exception ex) {
                 tcp.Close();
-                Console.WriteLine("<stream.error>[TCP Client rxClbck] " + ex.Message);
+                ReportInternalMessage(InterenalMessageType.Error, "TCP.Srv.DataRxCallback",
+                    ex.Message);
                 _isConnected = false;
             }
         }
@@ -202,10 +214,12 @@ namespace stream {
                 context.Client.Client.BeginReceive(context.buffer, 0, ClientContext.bufSizeAsServerPerClient,
                                                    SocketFlags.None, new AsyncCallback(ReceivedCallbackAsServer), context);
                 clients.Add(context);
-                Console.WriteLine("<stream.info>[TCP Srv OnCLientAccepted] new connection from " + context.Client.Client.RemoteEndPoint.ToString() );
+                ReportInternalMessage(InterenalMessageType.Info, "TCP.Srv.OnClientAccepted",
+                        "New connection from " + context.Client.Client.RemoteEndPoint.ToString() );
             }
             catch (Exception ex) {
-                Console.WriteLine("<stream.error>[TCP Srv onClientAccepted] " + ex);
+                ReportInternalMessage(InterenalMessageType.Error, "TCP.Srv.OnClientAccepted",
+                    ex.Message );
             } 
             finally {
                 server.BeginAcceptTcpClient(OnClientAccepted, server);
@@ -222,7 +236,10 @@ namespace stream {
                     if( cli.Client.Connected ) {
                         cli.Client.Client.Send(dataOut, 0, dataLen, SocketFlags.None);
                     }
-                } catch { }
+                } catch (Exception ex) {
+                    ReportInternalMessage(InterenalMessageType.Error, "TCP.Srv.SendToClients",
+                        ex.Message );
+                }
             }
         }
         

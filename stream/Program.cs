@@ -21,6 +21,13 @@ using System.Linq;
 using CommandLineParser;
 
 namespace stream {
+    
+    public enum InterenalMessageType {
+        Error,
+        Warning,
+        Info
+    }
+    
     class Program {
         
         static IPAddress localAddress = IPAddress.Any;
@@ -41,6 +48,8 @@ namespace stream {
             byte[] dataOut = new byte[1024];
             int len2copy = 0;
             bool status = true;
+            
+            reportedInternalMessage(InterenalMessageType.Info, "Main", "Initializing");
             
             aliasFile = AppDomain.CurrentDomain.BaseDirectory + "" + aliasFile;
             aliases = Aliases.ReadFromFile(aliasFile);
@@ -65,6 +74,8 @@ namespace stream {
             else if (opt.udp    != null) { conn = new ConnUDP(); }
             else if (opt.tcp    != null) { conn = new ConnTCP(); }
             else { return; }
+            
+            conn.ReportedInternalMessage += reportedInternalMessage;
             
             status = conn.Prepare(ref opt);
             
@@ -110,6 +121,14 @@ namespace stream {
             }
         }
         
+        
+        
+        /* "<stream.{msgType}>[{moduleSender}] {message}" */
+        static void reportedInternalMessage(InterenalMessageType msgType, string moduleSender, string message, bool newLine = true) {
+            Console.Write( "<stream." + msgType.ToString() + ">[" + moduleSender + "] " + message + (newLine ? "\r\n" : "") );
+        }
+        
+        
         static void TaskReconnect() {
             int cLeft = 0;
             int cTop = 0;
@@ -135,7 +154,8 @@ namespace stream {
                         duration = DateTime.Now.Subtract(dtStart);
                         strDuration = duration.ToString("hh\\:mm\\:ss\\.fff");
                         
-                        Console.Write("[{0}]", connSeq[idx]);
+                        reportedInternalMessage(InterenalMessageType.Info, "Reconnect", "[" + connSeq[idx] + "]", false);
+//                        Console.Write("[{0}]", connSeq[idx]);
                         Console.Write(" Connecting... ({0}) ", strDuration);
                         
                         if( conn.Open() ) {
@@ -143,7 +163,9 @@ namespace stream {
                             Console.Write('\r');
                             Console.Write(new string(' ', Console.BufferWidth));
                             Console.Write('\r');
-                            Console.WriteLine( "Connected successfully after {0} ", strDuration );
+                            reportedInternalMessage(InterenalMessageType.Info, "Reconnect", 
+                               "Connected successfully after " + strDuration);
+//                            Console.WriteLine( "Connected successfully after {0} ", strDuration );
                             fisrIterAfterDisconnect = true;
                         } else {
 //                            Console.CursorLeft = cLeft;

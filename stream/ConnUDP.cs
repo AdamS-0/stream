@@ -49,7 +49,8 @@ namespace stream {
                             ipPort = parts [ 1 ];
                             _IPPort = Convert.ToInt32(parts [ 1 ]);
                         } catch {
-                            Console.WriteLine("Error durign IPAddress parsing!");
+                            ReportInternalMessage(InterenalMessageType.Error, "UDP.Initializer",
+                                "Error durign IPAddress parsing!");
                             return false;
                         }
                     }
@@ -60,7 +61,8 @@ namespace stream {
                 if (opt.address.Length > 0) {
                     _IPAddr = opt.address;
                 } else {
-                    Console.WriteLine("Invalid IPv4 address!");
+                    ReportInternalMessage(InterenalMessageType.Error, "UDP.Initializer",
+                        "Invalid IPv4 address!");
                     return false;
                 }
             } else { opt.address = _IPAddr; }
@@ -69,7 +71,8 @@ namespace stream {
                 try {
                     _IPPort = Convert.ToInt32(opt.port);
                 } catch {
-                    Console.WriteLine("Incorrect value for '--port': {" + opt.port + "}");
+                    ReportInternalMessage(InterenalMessageType.Error, "UDP.Initializer",
+                        "Incorrect value for '--port': {" + opt.port + "}");
                     return false;
                 }
             }  else { opt.port = ipPort; }
@@ -80,7 +83,8 @@ namespace stream {
                 try {
                     ttl = (short)Convert.ToInt16(opt.ttl);
                 } catch {
-                    Console.WriteLine("Incorrect value for '-ttl': {" + opt.ttl + "}");
+                    ReportInternalMessage(InterenalMessageType.Error, "UDP.Initializer",
+                        "Incorrect value for '-ttl': {" + opt.ttl + "}");
                     return false;
                 }
             }
@@ -89,7 +93,7 @@ namespace stream {
         }
         
         public override void Send(ref byte[] dataOut, int dataLen) {
-//            try {
+            try {
                 if(asServer) {
                     _socket.SendTo(dataOut, 0, dataLen, SocketFlags.None, epFrom );
                 } else {
@@ -99,7 +103,9 @@ namespace stream {
                         int bytes = _socket.EndSend(ar);
                     }, state);
                 }
-//            } catch (Exception ex) { Console.WriteLine(ex.Message); }
+            } catch (Exception ex) { 
+                ReportInternalMessage(InterenalMessageType.Error, "UDP.Send", ex.Message);
+            }
         }
                 
         
@@ -121,7 +127,9 @@ namespace stream {
                 
                 _socket.BeginReceiveFrom(state.buffer, 0, bufSize, SocketFlags.None,
                              ref epFrom, new AsyncCallback(ReceivedCallback), state);
-            } catch (Exception ex) { Console.WriteLine(ex.Message); }
+            } catch (Exception ex) {
+                ReportInternalMessage(InterenalMessageType.Error, "UDP.Open", ex.Message);
+            }
             
             return _isConnected;
         }
@@ -137,7 +145,7 @@ namespace stream {
                 }
                 _isConnected = true;
             } catch (Exception ex) {
-                Console.WriteLine("<stream.error>[UDP rxClbck] " + ex.Message);
+                ReportInternalMessage(InterenalMessageType.Error, "UDP.DataRxCallback", ex.Message);
                 _isConnected = false;
             }
         }

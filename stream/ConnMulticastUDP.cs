@@ -44,7 +44,8 @@ namespace stream {
                             ipPort = parts [ 1 ];
                             _IPPort = Convert.ToInt32(parts [ 1 ]);
                         } catch {
-                            Console.WriteLine("Error durign IPAddress parsing!");
+                            ReportInternalMessage(InterenalMessageType.Error, "MUDP.Initializer",
+                                "Error durign IPAddress parsing!");
                             return false;
                         }
                     }
@@ -55,7 +56,8 @@ namespace stream {
                 if (opt.address.Length > 0) {
                     _IPAddr = opt.address;
                 } else {
-                    Console.WriteLine("Invalid IPv4 address!");
+                    ReportInternalMessage(InterenalMessageType.Error, "MUDP.Initializer",
+                        "Invalid IPv4 address!");
                     return false;
                 }
             } else { opt.address = _IPAddr; }
@@ -64,7 +66,8 @@ namespace stream {
                 try {
                     _IPPort = Convert.ToInt32(opt.port);
                 } catch {
-                    Console.WriteLine("Incorrect value for '--port': {" + opt.port + "}");
+                    ReportInternalMessage(InterenalMessageType.Error, "MUDP.Initializer",
+                        "Incorrect value for '--port': {" + opt.port + "}");
                     return false;
                 }
             } else { opt.port = ipPort; }
@@ -73,7 +76,8 @@ namespace stream {
                 try {
                     ttl = (short)Convert.ToInt16(opt.ttl);
                 } catch {
-                    Console.WriteLine("Incorrect value for '-ttl': {" + opt.ttl + "}");
+                    ReportInternalMessage(InterenalMessageType.Error, "MUDP.Initializer",
+                        "Incorrect value for '-ttl': {" + opt.ttl + "}");
                     return false;
                 }
             }
@@ -84,7 +88,10 @@ namespace stream {
         public override void Send(ref byte[] dataOut, int dataLen) {
             try {
                 udpClient.Send(dataOut, dataLen, remoteEP);
-            } catch {}
+            } catch (Exception ex) {
+                ReportInternalMessage(InterenalMessageType.Error, "MUDP.Send",
+                  ex.Message );
+            }
         }
         
         
@@ -102,36 +109,42 @@ namespace stream {
                 // czyli tutaj akurat rekurencja do samej siebie
                 udpClient.BeginReceive(new AsyncCallback(ReceivedCallback), null);
             } catch (Exception ex) {
-                Console.Write("<stream.error>[mudp rxClbck] " + ex.Message);
+                ReportInternalMessage(InterenalMessageType.Error, "MUDP.DataRxCallback",
+                    ex.Message);
             }
         }
         
         
         public override bool Open() {
-            multicastAddr = IPAddress.Parse(_IPAddr);
-            localAddress = IPAddress.Any;
-            localEP = new IPEndPoint(localAddress, _IPPort);
-            remoteEP = new IPEndPoint(multicastAddr, _IPPort);
-            
-            udpClient = new UdpClient(AddressFamily.InterNetwork);
+            try {
+                multicastAddr = IPAddress.Parse(_IPAddr);
+                localAddress = IPAddress.Any;
+                localEP = new IPEndPoint(localAddress, _IPPort);
+                remoteEP = new IPEndPoint(multicastAddr, _IPPort);
                 
-            // umozliwienie wielu aplikacjom dostępu do jednego portu
-            udpClient.Client.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.ReuseAddress, true);
-            udpClient.ExclusiveAddressUse = false;
-            
-            udpClient.Client.Ttl = ttl;
-            udpClient.Client.SetSocketOption(SocketOptionLevel.IP, SocketOptionName.IpTimeToLive, ttl);
-            
-            // podpięcie klienta do nasłuchiwania
-            udpClient.Client.Bind(localEP);
-    
-            // dołączenie do grupy multicastowej
-            udpClient.JoinMulticastGroup(multicastAddr, localAddress);
-    
-            // wskazanie metody obsługującej odbiór datagramu (jednorazowe)
-            udpClient.BeginReceive(new AsyncCallback(ReceivedCallback), null);
-            
-            _isConnected = true;
+                udpClient = new UdpClient(AddressFamily.InterNetwork);
+                    
+                // umozliwienie wielu aplikacjom dostępu do jednego portu
+                udpClient.Client.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.ReuseAddress, true);
+                udpClient.ExclusiveAddressUse = false;
+                
+                udpClient.Client.Ttl = ttl;
+                udpClient.Client.SetSocketOption(SocketOptionLevel.IP, SocketOptionName.IpTimeToLive, ttl);
+                
+                // podpięcie klienta do nasłuchiwania
+                udpClient.Client.Bind(localEP);
+        
+                // dołączenie do grupy multicastowej
+                udpClient.JoinMulticastGroup(multicastAddr, localAddress);
+        
+                // wskazanie metody obsługującej odbiór datagramu (jednorazowe)
+                udpClient.BeginReceive(new AsyncCallback(ReceivedCallback), null);
+                
+                _isConnected = true;
+            } catch (Exception ex) {
+                ReportInternalMessage(InterenalMessageType.Error, "MUDP.DataRxCallback",
+                  ex.Message );
+            }
             return _isConnected;
         }
     }

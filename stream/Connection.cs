@@ -11,12 +11,14 @@ using System;
 namespace stream {
     
     public delegate void DataReceivedEvent(ref byte[] dataOut, int dataLen);
+    public delegate void ReportedInternalMessageEvent(InterenalMessageType msgType, string moduleSender, string message, bool newLine = true);
     
     /// <summary>
     /// Description of Connection.
     /// </summary>
     public class Connection {
         public DataReceivedEvent DataReceived;
+        public ReportedInternalMessageEvent ReportedInternalMessage;
         
         protected bool _isConnected = false;
         
@@ -29,5 +31,11 @@ namespace stream {
         public virtual void Send(ref byte[] dataOut, int dataLen) { }
         
         public virtual bool Open() { return false; }
+        
+        protected void ReportInternalMessage(InterenalMessageType msgType, string moduleSender, string message) {
+            if ( this.ReportedInternalMessage == null ) { return; }
+            
+            this.ReportedInternalMessage(msgType, moduleSender, message);
+        }
     }
 }
