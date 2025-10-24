@@ -61,9 +61,6 @@ namespace stream {
             aliases = Aliases.ReadFromFile(aliasFile);
             
             Options opt = CommandLineParser.CommandLineParser.ParseArguments<Options>(args);
-            
-            if( opt.echo != null) { redirectStdInputToStdOutput = true; }
-            if( opt.noColors != null) { useColors = false; }
 
             if( (opt.alias != null) && (opt.list != null) ) {
                 /* Show alias list */
@@ -92,6 +89,9 @@ namespace stream {
             }
             
             if (!status) { return; }
+            
+            if( opt.echo != null) { redirectStdInputToStdOutput = true; }
+            if( opt.noColors != null) { useColors = false; }
             
             if( opt.reconnect != null ) {
                 try {
