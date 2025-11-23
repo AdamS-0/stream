@@ -18,6 +18,12 @@ namespace stream {
         AppAuthor = AppInfo.Author,
         AppDescription = AppInfo.Description)]
     public class Options {
+        [Parameter(ParameterAlias = "h", HelpText = "Show this page", ArgumentRequired = false)]
+        public string help { get; set; }
+        
+        [Parameter(ParameterAlias = "v", HelpText = "Show version of the application", ArgumentRequired = false)]
+        public string version { get; set; }
+        
         [Parameter(ParameterAlias = "as", HelpText = "Alias for stream settings",
                    ArgumentName = "name", ArgumentRequired = false)]
         public string alias { get; set; }

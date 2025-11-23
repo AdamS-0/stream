@@ -63,6 +63,9 @@ namespace stream {
             if( opt.noColors != null) { useColors = false; }
             reportedInternalMessage(InterenalMessageType.Info, "Main", "Initializing");
             
+            if ( opt.help    != null ) { CommandLineParser.CommandLineParser.PrintHelp<Options>(); }
+            if ( opt.version != null ) { CommandLineParser.CommandLineParser.PrintVersion<Options>(); }
+            
             if( (opt.alias != null) && (opt.list != null) ) {
                 /* Show alias list */
                 aliases.ShowAliases();
