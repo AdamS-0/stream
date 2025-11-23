@@ -11,6 +11,7 @@ using System.IO.Ports;
 using System.Collections.Generic;
 using System.Management;
 using Microsoft.Win32;
+using System.Threading;
 
 namespace stream {
     /// <summary>
@@ -109,11 +110,12 @@ namespace stream {
             
             try {
                 Serial_GetAllPorts(ref connsOrg);
-                Console.WriteLine("{0,-" + SerialPortConnInfo.maxSizeName + "}  " +
-                                  "{1,-" + SerialPortConnInfo.maxSizeDesc + "}  " +
-                                  "{2,-" + SerialPortConnInfo.maxSizeManuf + "}  " +
-                                  "{3,-" + SerialPortConnInfo.maxSizeDevID + "}",
-                                  "Name", "Description", "Manufacturer", "Device ID");
+                string strFormat =  "{0,-" + SerialPortConnInfo.maxSizeName + "}  " +
+                    "{1,-" + SerialPortConnInfo.maxSizeDesc + "}  " +
+                    "{2,-" + SerialPortConnInfo.maxSizeManuf + "}  " +
+                    "{3,-" + SerialPortConnInfo.maxSizeDevID + "}\r\n";
+                
+                Console.Write(strFormat, "Name", "Description", "Manufacturer", "Device ID");
                 
                 connsOrg.Sort((x, y) => x.Name.CompareTo(y.Name));
                 
@@ -130,14 +132,19 @@ namespace stream {
                 
                 foreach( SerialPortConnInfo ci in conns ) {
                     bool portInUse = true;
-                    SerialPort spi = new SerialPort();
-                    spi.PortName = ci.Name;
                     
                     if ( useColors ) {
                         try {
-                            spi.Open();
-                            portInUse = false;
-                            spi.Close();
+                            using( SerialPort spi = new SerialPort() ) {
+                                spi.ReadTimeout = 1;
+                                spi.WriteTimeout = 1;
+                                spi.PortName = ci.Name;
+                                spi.Handshake = Handshake.None;
+                                
+                                spi.Open();
+                                portInUse = false;
+                                new Thread( delegate() { Thread.Sleep(1); spi.Close(); } ).Start();
+                            }
                         } catch {}
                     }
                     
@@ -147,13 +154,10 @@ namespace stream {
                     strName += ci.Name;
                     if ( useColors ) { strName += CL_RESET; }
                     
-                    Console.WriteLine(
-                        "{0,-" + SerialPortConnInfo.maxSizeName + "}  " +
-                        "{1,-" + SerialPortConnInfo.maxSizeDesc + "}  " +
-                        "{2,-" + SerialPortConnInfo.maxSizeManuf + "}  " +
-                        "{3,-" + SerialPortConnInfo.maxSizeDevID + "}",
+                    Console.Write(strFormat,
                         strName, ci.Description, ci.Manufacturer, ci.DevID);
                 }
+                
             } catch {}
         }
         
