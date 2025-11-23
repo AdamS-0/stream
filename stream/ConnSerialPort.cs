@@ -102,8 +102,14 @@ namespace stream {
                         return false;
                     }
                 }
-            }            
-
+            }
+            
+            if ( opt.dtrDisabled != null )  { _sp.DtrEnable = false; }
+            else                            { _sp.DtrEnable = true; }
+            
+            if ( opt.rtsDisabled != null )  { _sp.RtsEnable = false; }
+            else                            { _sp.RtsEnable = true; }
+            
             return true;
         }
         

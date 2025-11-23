@@ -34,7 +34,7 @@ namespace stream {
                    ArgumentRequired = false)]
         public string echo { get; set; }
         
-        [Parameter(HelpText = "Do not use colors", ArgumentRequired = false)]
+        [Parameter(ParameterAlias = "nc", HelpText = "Do not use colors", ArgumentRequired = false)]
         public string noColors { get; set; }
         
         
@@ -62,6 +62,14 @@ namespace stream {
         [Parameter(HelpText = "Serial port stop bits", 
                    ArgumentName = "stopBits", ArgumentRequired = true)]
         public string stopBits { get; set; }
+        
+        [Parameter(ParameterAlias = "dtr", HelpText = "Serial port disable DTR", 
+                   ArgumentName = "dtr", ArgumentRequired = false)]
+        public string dtrDisabled { get; set; }
+        
+        [Parameter(ParameterAlias = "rts",HelpText = "Serial port disable RTS", 
+                   ArgumentName = "rts", ArgumentRequired = false)]
+        public string rtsDisabled { get; set; }
         
         
         [Parameter(ParameterAlias = "t", HelpText = "TCP client (default) / server",

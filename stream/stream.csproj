@@ -38,7 +38,7 @@
     <DefineConstants>DEBUG;TRACE</DefineConstants>
  
 
-    <StartArguments>-t 127.0.0.1:33456 -cl</StartArguments>
+    <StartArguments>-c 47 --noColors</StartArguments>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
     <OutputPath>bin\Release\</OutputPath>

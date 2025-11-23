@@ -55,18 +55,19 @@ namespace stream {
             int len2copy = 0;
             bool status = true;
             
-            reportedInternalMessage(InterenalMessageType.Info, "Main", "Initializing");
-            
             aliasFile = AppDomain.CurrentDomain.BaseDirectory + "" + aliasFile;
             aliases = Aliases.ReadFromFile(aliasFile);
             
             Options opt = CommandLineParser.CommandLineParser.ParseArguments<Options>(args);
-
+            
+            if( opt.noColors != null) { useColors = false; }
+            reportedInternalMessage(InterenalMessageType.Info, "Main", "Initializing");
+            
             if( (opt.alias != null) && (opt.list != null) ) {
                 /* Show alias list */
                 aliases.ShowAliases();
                 return;
-            } 
+            }
 
             if( opt.alias != null ) {
                 /* Serve aliases. If returned false, just exit the programm */
@@ -91,7 +92,6 @@ namespace stream {
             if (!status) { return; }
             
             if( opt.echo != null) { redirectStdInputToStdOutput = true; }
-            if( opt.noColors != null) { useColors = false; }
             
             if( opt.reconnect != null ) {
                 try {
@@ -149,11 +149,7 @@ namespace stream {
             
             msg += "[" + moduleSender + "] " + message + (newLine ? "\r\n" : "");
             
-            if ( useColors ) { Console.Write( msg );
-            } else {
-                switch (msgType) {
-                }
-            }
+            Console.Write( msg );
         }
         
         
