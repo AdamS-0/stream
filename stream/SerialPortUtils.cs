@@ -125,7 +125,7 @@ namespace stream {
                         continue;
                     }
                     
-                    /* Add new unique connection info */
+                    /* Add new  unique connection info */
                     conns.Add( connsOrg[idx] );
                 }
                 //

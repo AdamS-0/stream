@@ -21,12 +21,16 @@ namespace regHex {
         [Parameter(ParameterAlias = "p", HelpText = "Hexadecimal pattern:\n" + 
                    "\"5\" or \"05\" - hexdecimal number can be written as signel digit\n" +
                    "\"-\" or \"--\" - wild char\n" +
-                   "\"n-\" - wild char will be multiplaced n times, example is equal to \"-- -- -- ...\"\n" +
-                   "\"\\str\" - look for whole string str\n" +
+                   "\"<n>-\" - wild char will be multiplaced n times, example is equal to \"-- -- -- ...\"\n" +
+                   "\"\\<str>\" - look for whole string str" +
 //                   "\"*-\" - unknow length wild char, up to the next given known byte. Cannot be used as last sequence\n" +
                    "",
                    ArgumentName = "pattern", ArgumentRequired = true)]
         public string pattern { get; set; }
+        
+            [Parameter(ParameterAlias = "r", HelpText = "Replace with gien sequence",
+                   ArgumentName = "pattern", ArgumentRequired = true)]
+        public string replaceWith { get; set; }
 
         [Parameter(ParameterAlias = "o", HelpText = "Format of printed output:\n" + 
                    "A  - ASCII decoded message (one row per match)\n" +
@@ -35,8 +39,8 @@ namespace regHex {
                    ArgumentName = "A/H/AH", ArgumentRequired = true)]
         public string output { get; set; }
         
-        [Parameter(ParameterAlias = "c", HelpText = "Turn on coloring")]
-        public string colors { get; set; }
+        [Parameter(ParameterAlias = "c", HelpText = "Turn off coloring")]
+        public string noColors { get; set; }
         
     }
 }

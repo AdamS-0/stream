@@ -15,7 +15,18 @@ using System.Text.RegularExpressions;
 using System.Threading;
 
 namespace regHex {
+    
     class Program {
+        public enum InterenalMessageType {
+            Error,
+            Warning,
+            Info
+        }
+        
+        static string CL_RESET  = "\x1B[0m";
+        static string CL_RED    = "\x1B[31m";
+        static string CL_YEL    = "\x1B[93m";
+        static string CL_GREEN  = "\x1B[32m";
         
         enum outputf {
             [Description("A")]
@@ -56,8 +67,11 @@ namespace regHex {
 //            'x',
         };
         
+        static bool useColors = true;
+        
         public static void Main(string[] args) {
             Options opt = CommandLineParser.CommandLineParser.ParseArguments<Options>(args);
+            if( opt.noColors != null) { useColors = false; }
             
             byte[] dataIn           = new byte[1024];
             int bytesIn             = 0;
@@ -87,17 +101,17 @@ namespace regHex {
             
             bBytesFound = new byte[bPattern.Length];
             
-            Console.WriteLine("Given pattern:");
+            string givenPattern = "Given pattern: ";
             for( int idxPat = 0; idxPat < bPattern.Length; idxPat++ ) {
                 if( bByteKnown[idxPat] != 0 ) {
-                    Console.Write(bPattern[idxPat].ToString("X2"));
+                    givenPattern += bPattern[idxPat].ToString("X2");
                 } else {
-                    Console.Write( "--" );
+                    givenPattern += "--" ;
                 }
-                Console.Write(" ");
+                givenPattern += " ";
             }
+            reportedInternalMessage(InterenalMessageType.Info, "Main", givenPattern);
             
-            Console.Write("\r\n-----\r\n");
             
             using (Stream strmIn = Console.OpenStandardInput()) {
                 int idxIn   = 0;
@@ -130,12 +144,7 @@ namespace regHex {
                         idxOut++;
                         
                         if( idxOut >= bBytesFound.Length ) {
-                            printMatch(bBytesFound, bByteKnown, outputType, opt.colors != null);
-                            /* Print out found bytes */
-//                            for( idxOut = 0; idxOut < bBytesFound.Length; idxOut++ ) {
-//                                Console.Write(bBytesFound[idxOut].ToString("X2") + " ");    
-//                            }
-//                            Console.Write("\r\n");
+                            printMatch(bBytesFound, bByteKnown, outputType, useColors);
                             idxOut = 0;
                         }
                         
@@ -291,6 +300,31 @@ namespace regHex {
             }
             
             return true;
+        }
+        
+        
+        
+        
+        static string getColorFromMsgType(InterenalMessageType msgType) {
+            switch (msgType) {
+                case InterenalMessageType.Error     : return CL_RED;
+                case InterenalMessageType.Warning   : return CL_YEL;
+                case InterenalMessageType.Info      : return CL_GREEN;
+            }
+            return "";
+        }
+        /* "<stream.{msgType}>[{moduleSender}] {message}" */
+        static void reportedInternalMessage(InterenalMessageType msgType, string moduleSender, string message, bool newLine = true) {           
+            string msg = "";
+            
+            if ( useColors ) { msg += getColorFromMsgType(msgType); }
+            msg += "<regHex." + msgType.ToString() + ">";
+            
+            if ( useColors ) { msg += CL_RESET; }
+            
+            msg += "[" + moduleSender + "] " + message + (newLine ? "\r\n" : "");
+            
+            Console.Write( msg );
         }
     }
 }
