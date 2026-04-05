@@ -16,10 +16,10 @@ namespace stream {
     public class AppInfo {
         
         public const string Name = "stream";
-        public const string Version = "1.2.1-" + vn.BUILD_NUM + "_" +
+        public const string Version = "1.3.0-" + vn.BUILD_NUM + "_" +
             vn.BUILD_YEAR + vn.BUILD_MON + vn.BUILD_DAY + "." +
             vn.BUILD_HOUR + vn.BUILD_MIN;
-        public const string Author = "AdamS-0 2025";
+        public const string Author = "AdamS-0 2026";
         public const string Description = "Simple application for stream IN/OUT operations";
         
         public AppInfo() {
