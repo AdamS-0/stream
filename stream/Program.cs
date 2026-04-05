@@ -72,9 +72,14 @@ namespace stream {
                 return;
             }
 
-            if( opt.alias != null ) {
+            if( opt.alias != null && opt.clear == null ) {
                 /* Serve aliases. If returned false, just exit the programm */
                 if( !GetFromAlias(ref opt) ) { return; }
+            }
+            
+            if( opt.alias != null && opt.save != null ) {
+                /* Seve aliases. If returned false, just exit the programm */
+                if( !SaveAlias(ref opt) ) { return; }
             }
             
             if      (opt.com    != null) { conn = new ConnSerialPort(); }
@@ -86,11 +91,6 @@ namespace stream {
             conn.ReportedInternalMessage += reportedInternalMessage;
             
             status = conn.Prepare(ref opt, useColors);
-            
-            if( opt.alias != null ) {
-                /* Serve aliases. If returned false, just exit the programm */
-                if( !SaveAlias(ref opt) ) { return; }
-            }
             
             if (!status) { return; }
             
@@ -226,6 +226,8 @@ namespace stream {
             
             foreach (PropertyInfo propInfo in typeof(Options).GetProperties()) {
                 if( propInfo.Name.Equals("alias") ) { continue; }
+                if( propInfo.Name.Equals("save") ) { continue; }
+                if( propInfo.Name.Equals("clear") ) { continue; }
                 if( propInfo.GetValue(opt) != null ) { allPropsNulls = false; }
             }
             
@@ -235,16 +237,26 @@ namespace stream {
             /* Find alias with given name */
             als = aliases.items.Find(o => o.Name.Equals(aliasName));
             
+            if( als == null && opt.save == null ) {
+                Console.WriteLine("Alias '{0}' was not found!", opt.alias);
+                return false;
+            }
             
-            if( allPropsNulls ) {
-                /* All properties are null so it is read from alias sequence! */
-                
-                if( als == null ) {
-                    Console.WriteLine("Alias '{0}' was not found!", opt.alias);
-                    return false;
-                }
-                
+            if ( allPropsNulls ) {
+                /* All properties are null so it is read from alias sequence! */                
                 opt = als.options;
+                opt.save = null;
+                opt.clear = null;
+            } else {
+                if ( als != null ) {
+                    foreach (PropertyInfo propInfo in typeof(Options).GetProperties()) {
+                        if( propInfo.Name.Equals("alias") ) { continue; }
+                        if( propInfo.GetValue(opt) == null ) {
+                            /* Replace only undefined parameters with avlues from alias */
+                            propInfo.SetValue( opt, propInfo.GetValue(als.options) );
+                        }
+                    }
+                }
             }
             
             return true;
@@ -259,6 +271,8 @@ namespace stream {
             
             foreach (PropertyInfo propInfo in typeof(Options).GetProperties()) {
                 if( propInfo.Name.Equals("alias") ) { continue; }
+                if( propInfo.Name.Equals("save") ) { continue; }
+                if( propInfo.Name.Equals("clear") ) { continue; }
                 if( propInfo.GetValue(opt) != null ) { allPropsNulls = false; }
             }
             
@@ -269,15 +283,19 @@ namespace stream {
             als = aliases.items.Find(o => o.Name.Equals(aliasName));
             
             
-            if( !allPropsNulls ) {
+            if ( allPropsNulls && als != null ) {
+                /* All properties were set to null, so this is clearing this alias */
+                aliases.items.Remove(als);
+            } else {
                 /* Some properties were applied, so this is create/update sequence */
                 if( als == null ) {
                     als = new Alias(opt.alias, ref opt);
                     aliases.items.Add( als );
                 } else { als.options = opt; }
-                
-                Aliases.SaveToFile( aliasFile, ref aliases );
+                als.options.save = null;
+                als.options.clear = null;
             }
+            Aliases.SaveToFile( aliasFile, ref aliases );
             return true;
             
         }

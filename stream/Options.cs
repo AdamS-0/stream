@@ -24,6 +24,14 @@ namespace stream {
         [Parameter(ParameterAlias = "v", HelpText = "Show version of the application", ArgumentRequired = false)]
         public string version { get; set; }
         
+        [Parameter(HelpText = "Save alias configuration",
+                   ArgumentName = "", ArgumentRequired = false)]
+        public string save { get; set; }
+        
+        [Parameter(HelpText = "Clear alias configuration",
+                   ArgumentName = "", ArgumentRequired = false)]
+        public string clear { get; set; }
+        
         [Parameter(ParameterAlias = "as", HelpText = "Alias for stream settings",
                    ArgumentName = "name", ArgumentRequired = false)]
         public string alias { get; set; }
@@ -61,11 +69,11 @@ namespace stream {
                    ArgumentName = "parity", ArgumentRequired = true)]
         public string parity { get; set; }
         
-        [Parameter(ParameterAlias = "d", HelpText = "Serial port data bits", 
+        [Parameter(ParameterAlias = "db", HelpText = "Serial port data bits", 
                    ArgumentName = "dataBits", ArgumentRequired = true)]
         public string dataBits { get; set; }
         
-        [Parameter(HelpText = "Serial port stop bits", 
+        [Parameter(ParameterAlias = "sb", HelpText = "Serial port stop bits", 
                    ArgumentName = "stopBits", ArgumentRequired = true)]
         public string stopBits { get; set; }
         

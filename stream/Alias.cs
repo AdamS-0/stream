@@ -44,6 +44,10 @@ namespace stream {
         [XmlArrayItem("OptionsObject")]
         public List<Alias> items;
         
+        public static List<string> _skippableParams = new List<string>(){
+                "help", "version", "list", "save", "clear",
+        };
+        
         private static void updateMaxLengths(ref Options options, ref List<int> maxFieldLen) {
             int propValLength = 0;
             int idx = 0;
@@ -57,6 +61,7 @@ namespace stream {
             
             foreach (PropertyInfo propInfo in typeof(Options).GetProperties()) {
                 propValLength = 0;
+                if ( _skippableParams.Contains( propInfo.Name ) ) { continue; }
                 
                 try {
                     /* Get property's value length */
@@ -93,6 +98,7 @@ namespace stream {
             
             
             foreach (PropertyInfo propInfo in typeof(Options).GetProperties()) {
+                if ( _skippableParams.Contains( propInfo.Name ) ) { continue; }
                 try {
                     if( maxFieldLen[idx] < propInfo.Name.Length ) {
                         maxFieldLen[idx] = propInfo.Name.Length;
@@ -112,6 +118,8 @@ namespace stream {
             Console.Write("{0," + aliasNoLength + "}|", strAliasNo);
             
             foreach (PropertyInfo propInfo in typeof(Options).GetProperties()) {
+                if ( _skippableParams.Contains( propInfo.Name ) ) { continue; }
+                
                 try {
                     Console.Write("{0," +  maxFieldLen[idx] + "}|", propInfo.Name);
                 } catch {}
@@ -124,6 +132,7 @@ namespace stream {
                 idx = 0;
                 Console.Write("{0," + aliasNoLength + "}|", idxAlias);
                 foreach (PropertyInfo propInfo in typeof(Options).GetProperties()) {
+                    if ( _skippableParams.Contains( propInfo.Name ) ) { continue; }
                     try {
                         if( propInfo.GetValue(als.options) != null ) {
                             propValue = propInfo.GetValue(als.options).ToString();
