@@ -60,7 +60,18 @@ namespace stream {
             
             Options opt = CommandLineParser.CommandLineParser.ParseArguments<Options>(args);
             
-            if( opt.noColors != null) { useColors = false; }
+            if( opt.noColors != null ) { useColors = false; }
+            int ret = reportedInternalMessage(InterenalMessageType.Info, "Main", "Initializing", false);
+            
+            if ( opt.noColors == null ) {
+                if ( ret != 0 ) {
+                    useColors = true;
+                } else {
+                    useColors = false;
+                }
+            }
+            Console.Write("\r");
+            Console.Write(new string(' ', Console.BufferWidth));
             reportedInternalMessage(InterenalMessageType.Info, "Main", "Initializing");
             
             if ( opt.help    != null ) { CommandLineParser.CommandLineParser.PrintHelp<Options>(); }
@@ -71,7 +82,7 @@ namespace stream {
                 aliases.ShowAliases();
                 return;
             }
-
+            
             if( opt.alias != null && opt.clear == null ) {
                 /* Serve aliases. If returned false, just exit the programm */
                 if( !GetFromAlias(ref opt) ) { return; }
@@ -142,7 +153,7 @@ namespace stream {
             return "";
         }
         /* "<stream.{msgType}>[{moduleSender}] {message}" */
-        static void reportedInternalMessage(InterenalMessageType msgType, string moduleSender, string message, bool newLine = true) {           
+        static int reportedInternalMessage(InterenalMessageType msgType, string moduleSender, string message, bool newLine = true) {           
             string msg = "";
             
             if ( useColors ) { msg += getColorFromMsgType(msgType); }
@@ -153,6 +164,7 @@ namespace stream {
             msg += "[" + moduleSender + "] " + message + (newLine ? "\r\n" : "");
             
             Console.Write( msg );
+            return msg.Length - Console.CursorLeft;
         }
         
         

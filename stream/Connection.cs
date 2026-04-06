@@ -11,7 +11,7 @@ using System;
 namespace stream {
     
     public delegate void DataReceivedEvent(ref byte[] dataOut, int dataLen);
-    public delegate void ReportedInternalMessageEvent(InterenalMessageType msgType, string moduleSender, string message, bool newLine = true);
+    public delegate int ReportedInternalMessageEvent(InterenalMessageType msgType, string moduleSender, string message, bool newLine = true);
     
     /// <summary>
     /// Description of Connection.
