@@ -134,6 +134,10 @@ namespace stream {
             return _isConnected;
         }
         
+        public override string ToString() {
+            return "UDP " + (asServer ? "Server at" : "Client to") + " " + _IPAddr + ":" + _IPPort + ", ttl(" + ttl + ")";
+        }
+        
         private void ReceivedCallback(IAsyncResult ar) {
             try {
                 State so = (State)ar.AsyncState;

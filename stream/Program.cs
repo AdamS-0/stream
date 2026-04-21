@@ -138,7 +138,7 @@ namespace stream {
                     }
                 }
             } catch (Exception ex) {
-                Console.WriteLine("stream>[Error]: " + ex.Message );
+                reportedInternalMessage(InterenalMessageType.Error, "strIn", ex.Message, true);
             }
         }
         
@@ -194,26 +194,24 @@ namespace stream {
                         strDuration = duration.ToString("hh\\:mm\\:ss\\.fff");
                         
                         reportedInternalMessage(InterenalMessageType.Info, "Reconnect", "[" + connSeq[idx] + "]", false);
-//                        Console.Write("[{0}]", connSeq[idx]);
                         Console.Write(" Connecting... ({0}) ", strDuration);
                         
                         if( conn.Open() ) {
-//                            Console.SetCursorPosition(cLeft, cTop);
                             Console.Write('\r');
                             Console.Write(new string(' ', Console.BufferWidth));
                             Console.Write('\r');
                             reportedInternalMessage(InterenalMessageType.Info, "Reconnect", 
                                "Connected successfully after " + strDuration);
-//                            Console.WriteLine( "Connected successfully after {0} ", strDuration );
                             fisrIterAfterDisconnect = true;
+                            
+                            reportedInternalMessage(InterenalMessageType.Info, "Reconnect", "Configuration: " + conn.ToString(), true);
                         } else {
-//                            Console.CursorLeft = cLeft;
-//                            Console.CursorTop = cTop;
-//                            Console.SetCursorPosition(cLeft, cTop);
                             Console.Write('\r');
                         }
                     }
-                } catch (Exception ex) { Console.WriteLine(ex.Message); }
+                } catch (Exception ex) {
+                    reportedInternalMessage(InterenalMessageType.Error, "Reconnector", ex.Message, true);
+                }
                 
                 Thread.Sleep(reconnectTimeout);
             } while(tryToReconnect);
@@ -250,7 +248,7 @@ namespace stream {
             als = aliases.items.Find(o => o.Name.Equals(aliasName));
             
             if( als == null && opt.save == null ) {
-                Console.WriteLine("Alias '{0}' was not found!", opt.alias);
+                reportedInternalMessage(InterenalMessageType.Error, "AliasGetter", "Alias '" + opt.alias + "' was not found!", true);
                 return false;
             }
             
@@ -339,31 +337,48 @@ namespace stream {
             int     startIdx    = line.IndexOf(':');
             string  cmd         = "";
             
-            if ( ( startIdx < 0 ) || ( startIdx >= line.Length ) ) { return false; }
-            /* Found ':' in line */
-            
             int strEnd_idx = line.IndexOf('\0');
             if ( ( strEnd_idx > 0 ) && ( strEnd_idx < line.Length ) ) {
                 line = line.Substring( 0, strEnd_idx );
             }
             
-            cmd = line.Substring(0, startIdx);
+            if ( ( startIdx > 0 ) && ( startIdx < line.Length ) ) {
+                /* Found ':' in line */
+                cmd = line.Substring(0, startIdx);
+            } else {
+                int eolIdx = line.IndexOf('\r');
+                if ( eolIdx > 0 && eolIdx < line.Length ) {
+                    cmd = line.Substring(0, eolIdx);
+                } else {
+                    cmd = line;
+                }
+            }
             
             if ( cmd.Equals("send_file") ) {
                 string filePath2Send = line.Substring(startIdx + 1);
+                int eolIdx = filePath2Send.IndexOf('\r');
+                if ( eolIdx > 0 && eolIdx < filePath2Send.Length ) {
+                    filePath2Send = filePath2Send.Substring(0, eolIdx);
+                }
                 
                 filePath2Send = new string(filePath2Send.Where(c => !char.IsControl(c)).ToArray());
                 
-                if ( !File.Exists( filePath2Send ) ) { return false; }
+                if ( !File.Exists( filePath2Send ) ) {
+                    reportedInternalMessage(InterenalMessageType.Warning, "FileSender", "File '" + filePath2Send + "' not found!", true);
+                    return false;
+                }
                 /* File exists */
                 dataLen = 0;
                 
                 byte[] fileBytes = File.ReadAllBytes( filePath2Send );
                 conn.Send(ref fileBytes, fileBytes.Length);
-                Console.WriteLine("stream>[Info]Send Ok");
+                reportedInternalMessage(InterenalMessageType.Info, "FileSender", "Send OK", true);
                 return true;
+            } else if ( cmd.Equals("getCfg") ) {
+                reportedInternalMessage(InterenalMessageType.Info, "getCfg", "Configuration: " + conn.ToString(), true);
+            } else {
+                reportedInternalMessage(InterenalMessageType.Warning, "stream", "Unknown command '" + cmd + "'", true);
             }
-            Console.WriteLine("stream>[Warning] Unknown command");
             return false;
         }
     }

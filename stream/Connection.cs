@@ -32,10 +32,12 @@ namespace stream {
         
         public virtual bool Open() { return false; }
         
-        protected void ReportInternalMessage(InterenalMessageType msgType, string moduleSender, string message) {
+        public override string ToString() { return ""; }
+        
+        protected void ReportInternalMessage(InterenalMessageType msgType, string moduleSender, string message, bool newLine = true) {
             if ( this.ReportedInternalMessage == null ) { return; }
             
-            this.ReportedInternalMessage(msgType, moduleSender, message);
+            this.ReportedInternalMessage(msgType, moduleSender, message, newLine);
         }
     }
 }

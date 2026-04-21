@@ -154,10 +154,17 @@ namespace stream {
                 tcp.Close();
                 ReportInternalMessage(InterenalMessageType.Error, "TCP.Open",
                         ex.Message);
+                Console.CursorTop -= 3;
                 _isConnected = false;
             }
             
             return _isConnected;
+        }
+        
+        
+        
+        public override string ToString() {
+            return "TCP " + (asServer ? "Server at" : "Client to") + " " + _IPAddr + ":" + _IPPort + ", ttl(" + ttl + ")";
         }
         
         private void ReceivedCallback(IAsyncResult ar) {

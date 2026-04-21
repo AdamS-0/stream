@@ -147,5 +147,10 @@ namespace stream {
             }
             return _isConnected;
         }
+        
+        
+        public override string ToString() {
+            return "Multicast at " + _IPAddr + ":" + _IPPort + ", ttl(" + ttl + ")";
+        }
     }
 }

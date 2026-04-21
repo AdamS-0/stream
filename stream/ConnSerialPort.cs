@@ -152,6 +152,30 @@ namespace stream {
             }
             return _isConnected;
         }
+        
+        public override string ToString() {
+            char cParity = 'N';
+            switch ( _sp.Parity ) {
+                case Parity.Even    : cParity = 'E'; break;
+                case Parity.Mark    : cParity = 'M'; break;
+                case Parity.None    : cParity = 'N'; break;
+                case Parity.Odd     : cParity = 'O'; break;
+                case Parity.Space   : cParity = 'S'; break;
+                default             : cParity = '-'; break;
+            }
+            
+            string strStopBits = "0";
+            switch ( _sp.StopBits ) {
+                case StopBits.None          : strStopBits = "0";    break;
+                case StopBits.One           : strStopBits = "1";    break;
+                case StopBits.OnePointFive  : strStopBits = "1.5";  break;
+                case StopBits.Two           : strStopBits = "2";    break;
+                default                     : strStopBits = "_";    break;
+            }
+            
+            return _sp.PortName + "@" + _sp.BaudRate + "-" + _sp.DataBits + cParity + strStopBits + " RTS(" + _sp.RtsEnable + ") CTS(" + _sp.CtsHolding + ")";
+        }
+        
     }
     
     
