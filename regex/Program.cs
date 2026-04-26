@@ -35,6 +35,8 @@ namespace regex {
             string  strHelper   = "";
             int     idx         = 0;
             
+            regexReplace = Regex.Replace(regexReplace, @"\\(\d+)", @"$$$1");
+            
             while( (idx = regexReplace.IndexOf('\\')) >= 0 ) {
                 strHelper = regexReplace.Substring(0, idx);
                 
@@ -54,6 +56,8 @@ namespace regex {
             byte[]  dataIn  = new byte[1024];
             int     bytesIn = 0;
             string  dataOut = "";
+            int     idxLastWroteByte = 0;
+            int     lenFreeSpaceInBuff = dataIn.Length;
             
             using (Stream strmIn = Console.OpenStandardInput()) {
                 while (true) {
@@ -64,18 +68,36 @@ namespace regex {
                         continue;
                     }
                     
-                    dataOut = Encoding.ASCII.GetString(dataIn, 0, bytesIn);
-                    
-                    if ( regexReplace.Length > 0 ) {
-                        dataOut = Regex.Replace(dataOut, regexLook, regexReplace, RegexOptions.Multiline);
-                        Console.Write( dataOut );
-                    } else {
-                        MatchCollection matches = Regex.Matches(dataOut, regexLook, RegexOptions.Multiline);
-                        foreach( Match m in matches ) {
-                            if ( !m.Success ) { continue; }
-                            
-                            Console.WriteLine( m.Value );
-                            
+                    dataOut += Encoding.ASCII.GetString(dataIn, 0, bytesIn);
+
+                    int idxLastNewLine = dataOut.LastIndexOf('\n');
+                    if ( ( idxLastNewLine >= 0 ) && ( ( idxLastNewLine + 1 ) < dataOut.Length ) ) {
+                        
+                        string fullLines = dataOut.Substring(0, idxLastNewLine + 1);
+                        if ( ( idxLastNewLine + 1 ) < dataOut.Length ) {
+                            dataOut = dataOut.Substring(idxLastNewLine + 1);
+                        } else {
+                            dataOut = "";
+                        }
+                        
+                        if ( regexReplace.Length > 0 ) {
+                            if ( opt.filter == null ) {
+                                string fullLines2 = Regex.Replace(fullLines, regexLook, regexReplace, RegexOptions.Multiline);
+                                Console.Write( fullLines2 );
+                            } else {
+                                MatchCollection matches = Regex.Matches(fullLines, regexLook, RegexOptions.Multiline);
+                                foreach( Match m in matches ) {
+                                    if ( !m.Success ) { continue; }
+                                    string filteredReplaced = Regex.Replace(m.Groups[0].Value, regexLook, regexReplace, RegexOptions.Multiline);
+                                    Console.Write( filteredReplaced );
+                                }
+                            }
+                        } else {
+                            MatchCollection matches = Regex.Matches(fullLines, regexLook, RegexOptions.Multiline);
+                            foreach( Match m in matches ) {
+                                if ( !m.Success ) { continue; }
+                                Console.Write( m.Value );
+                            }
                         }
                     }
                 }

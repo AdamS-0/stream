@@ -29,5 +29,8 @@ namespace regex {
         [Parameter(ParameterAlias = "c", HelpText = "Turn off coloring")]
         public string noColors { get; set; }
         
+        [Parameter(ParameterAlias = "f", HelpText = "Filter for only pattern lines")]
+        public string filter{ get; set; }
+        
     }
 }
