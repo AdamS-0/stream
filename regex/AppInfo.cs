@@ -14,7 +14,7 @@ namespace regex {
     /// </summary>
     public class AppInfo {
         public const string Name = "regex";
-        public const string Version = "1.0.0_" + vn.BUILD_NUM + "_" +
+        public const string Version = "1.1.0_" + vn.BUILD_NUM + "_" +
                                       vn.BUILD_YEAR + vn.BUILD_MON + vn.BUILD_DAY + "." +
                                       vn.BUILD_HOUR + vn.BUILD_MIN;
         public const string Author = "AdamS-0 2026";

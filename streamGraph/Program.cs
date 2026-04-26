@@ -62,11 +62,16 @@ namespace streamGraph {
     }
     
     
+    [AppInfo(
+        AppName         = AppInfo.Name,
+        AppVersion      = AppInfo.Version,
+        AppAuthor       = AppInfo.Author,
+        AppDescription  = AppInfo.Description)]
     public class Options {
-        [Parameter(HelpText = "RegEx pattern", ArgumentName = "pattern", ArgumentRequired = true)]
+        [Parameter(ParameterAlias = "p", HelpText = "RegEx pattern", ArgumentName = "pattern", ArgumentRequired = true)]
         public string pattern { get; set; }
         
-        [Parameter(ParameterAlias = "n" , ParameterName = "numSamples", HelpText = "Record length", ArgumentName = "num", ArgumentRequired = true)]
+        [Parameter(ParameterAlias = "n", ParameterName = "numSamples", HelpText = "Record length", ArgumentName = "num", ArgumentRequired = true)]
         public string nSamples { get; set; }
         
         [Parameter(HelpText = "Graph name", ArgumentName = "name", ArgumentRequired = true, Required = false)]

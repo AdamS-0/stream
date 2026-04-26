@@ -18,19 +18,18 @@ namespace regex {
         AppAuthor       = AppInfo.Author,
         AppDescription  = AppInfo.Description)]
     public class Options {
-        [Parameter(ParameterAlias = "p", HelpText = "Hexadecimal pattern",
-                   ArgumentName = "pattern", ArgumentRequired = true)]
-        public string pattern { get; set; }
-        
-            [Parameter(ParameterAlias = "r", HelpText = "Replace with gien sequence",
-                   ArgumentName = "pattern", ArgumentRequired = true)]
-        public string replaceWith { get; set; }
+        [Parameter(ParameterAlias = "p", HelpText = "Regex pattern",
+                   ArgumentName = "pattern [replacement]", ArgumentRequired = true)]
+        public object pattern { get; set; }
         
         [Parameter(ParameterAlias = "c", HelpText = "Turn off coloring")]
         public string noColors { get; set; }
         
         [Parameter(ParameterAlias = "f", HelpText = "Filter for only pattern lines")]
         public string filter{ get; set; }
+        
+        [Parameter(ParameterAlias = "s", HelpText = "Silent mode, with no messages from this application")]
+        public string silent{ get; set; }
         
     }
 }

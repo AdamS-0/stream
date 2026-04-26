@@ -71,12 +71,14 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="AppInfo.cs" />
     <Compile Include="Graph.cs" />
     <Compile Include="Graph.Designer.cs">
       <DependentUpon>Graph.cs</DependentUpon>
     </Compile>
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="vn.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />
@@ -87,4 +89,7 @@
     </EmbeddedResource>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <PropertyGroup>
+    <PreBuildEvent>vn.bat</PreBuildEvent>
+  </PropertyGroup>
 </Project>

@@ -16,6 +16,7 @@ public class logger {
     static string CL_RED    = "\x1B[31m";
     static string CL_YEL    = "\x1B[93m";
     static string CL_GREEN  = "\x1B[32m";
+    bool _silentMode = false;
     
     public enum InterenalMessageType {
         Error,
@@ -43,6 +44,8 @@ public class logger {
     
     /* "<{appName}.{msgType}>[{moduleSender}] {message}" */
     public void reportMsg(InterenalMessageType msgType, string moduleSender, string message, bool newLine = true) {           
+        if ( this._silentMode ) { return; }
+        
         string msg = "";
         
         if ( useColors ) { msg += getColorFromMsgType(msgType); }
@@ -53,5 +56,9 @@ public class logger {
         msg += "[" + moduleSender + "] " + message + (newLine ? "\r\n" : "");
         
         Console.Write( msg );
+    }
+    
+    public void setSilentMode( bool setToSilent ) {
+        this._silentMode = setToSilent;
     }
 }
