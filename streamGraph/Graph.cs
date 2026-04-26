@@ -25,11 +25,26 @@ namespace streamGraph {
         string _lastValue = "";
         
         static List<float> dataX = new List<float>();
-        static List<float> dataY = new List<float>();
+        static List<List<float>> dataYs = new List<List<float>>();
+        static List<VisBox.Series> _series = new List<VisBox.Series>();
         
-        VisBox.Series ser1 = new VisBox.Series(ref dataX, ref dataY, new VisBox.Marker(Color.Blue, ' '), new Pen(Color.Blue), "Data1");
+//        VisBox.Series ser1 = new VisBox.Series(ref dataX, ref dataY, new VisBox.Marker(Color.Blue, ' '), new Pen(Color.Blue), "Data1");
         
         Timer tim1 = new Timer();
+        
+        public static readonly Color[] ChartColors = new Color[] {
+            Color.Gold,
+            Color.FromArgb(61, 149, 210),  // niebieski
+            Color.FromArgb(255, 127, 14),  // pomarańczowy
+            Color.FromArgb(44, 160, 44),   // zielony
+            Color.FromArgb(214, 39, 40),   // czerwony
+            Color.FromArgb(148, 103, 189), // fioletowy
+            Color.FromArgb(140, 86, 75),   // brązowy
+            Color.FromArgb(227, 119, 194), // różowy
+            Color.FromArgb(127, 127, 127), // szary
+            Color.FromArgb(188, 189, 34),  // oliwkowy
+            Color.FromArgb(23, 190, 207)   // turkusowy
+        };
         
         public Graph(string pattern = "(.*)", int numSamples = 100, string graphName = "") {
             InitializeComponent();
@@ -39,16 +54,30 @@ namespace streamGraph {
             NSamples = numSamples;
             _graphName = graphName;
             
+            int noSer = (new Regex(_pattern)).GetGroupNumbers().Length - 1;
+            
+            Console.WriteLine( "Detected series: " + noSer );
+            for ( int idxSer = 0; idxSer < noSer; idxSer++ ) {
+                List<float> dataYi = new List<float>();
+                dataYs.Add( dataYi );
+                VisBox.Series serI = new VisBox.Series(ref dataX, ref dataYi, new VisBox.Marker(ChartColors[idxSer % ChartColors.Length], ' '),
+                                                       new Pen(ChartColors[idxSer % ChartColors.Length]), "Data" + idxSer );
+                _series.Add(serI);
+                plot1.AddSeries(ref serI);
+            }
+            
             tim1.Interval = 100;
             tim1.Tick += tim1_tick;
             
             /* Fill series with zeros */
             for (int idx = 0; idx < NSamples; idx++) {
                 dataX.Add(idx);
-                dataY.Add(0);
+                for( int idxSer = 0; idxSer < dataYs.Count; idxSer++ ) {
+                    dataYs[idxSer].Add(0);
+                }
             }
             
-            ser1.Pen.Color = Color.Gold;
+//            ser1.Pen.Color = Color.Gold;
             
             plot1.ColorInner = Color.Black;
             plot1.gridY.Pen.Color = Color.Green;
@@ -65,7 +94,6 @@ namespace streamGraph {
             plot1.gridYminor.ScaleFactor = 0.5f;
             plot1.gridYminor.ShowLables = false;
             
-            plot1.AddSeries(ref ser1);
         }
         
         
@@ -75,7 +103,7 @@ namespace streamGraph {
         
         bool firstSample = true;
         public void DataReceived(byte[] dataIn) {
-            List<float> vals = new List<float>();
+            List<float> firstVals = new List<float>();
             
             string strIn = Encoding.Default.GetString(dataIn);
             
@@ -84,30 +112,43 @@ namespace streamGraph {
             foreach( Match m in matches ) {
                 if( !m.Success ) { continue; }
                 Console.WriteLine(m.Groups[0].Value);
-                if( m.Groups.Count > 1 ) {
+                for ( int idxSer = 0; ( idxSer + 1)  < m.Groups.Count; idxSer++ ) {
                     try {
-                        vals.Add( (float)Convert.ToDouble(m.Groups[1].Value.Replace(".", ",")) );
+                        /* Get new values for all series */
+                        firstVals.Add( (float)Convert.ToDouble(m.Groups[1 + idxSer].Value.Replace(".", ",")) );
                     } catch {}
                 }
             }
             
-            if( firstSample&& vals.Count > 0 ) {
+            if( firstSample && firstVals.Count > 0 ) {
                 firstSample = false;
-                for( int idx = 0; idx < dataY.Count; idx++ ) {
-                    dataY[idx] = vals[0];
+                for( int idxSer = 0; idxSer < dataYs.Count & dataYs.Count == firstVals.Count; idxSer++ ) {
+                    for( int idx = 0; idx < dataYs[idxSer].Count; idx++ ) {
+                        /* Set all values in current series to one value */
+                        dataYs[idxSer][idx] = firstVals[idxSer];
+                    }
                 }
             }
             
-            for( int idx = 0; idx < (NSamples - vals.Count); idx++ ) {
-                dataY[idx] = dataY[idx + vals.Count];
+            if ( firstVals.Count <= 0 ) { return; }
+            
+            /* Roll data */
+            for( int idxSer = 0; idxSer < dataYs.Count; idxSer++ ) {
+                for( int idx = 0; idx < (NSamples - 1); idx++ ) {
+                    dataYs[idxSer][idx] = dataYs[idxSer][idx + 1];
+                }
             }
             
-            for( int idx = 0; idx < vals.Count; idx++ ) {
-                dataY[(NSamples - vals.Count) + idx] = vals[idx];
+            /* Set new value at the end fo each series */
+            for( int idxSer = 0; idxSer < dataYs.Count && firstVals.Count == dataYs.Count; idxSer++ ) {
+                dataYs[idxSer][dataYs[idxSer].Count - 1] = firstVals[idxSer];
             }
             
-            if( vals.Count > 0 ) {
-                _lastValue = vals[vals.Count - 1].ToString();
+            if( firstVals.Count > 0 ) {
+                _lastValue = "";
+                for( int idxSer = 0; idxSer < dataYs.Count && dataYs.Count == firstVals.Count; idxSer++ ) {
+                    _lastValue += ";" + firstVals[idxSer].ToString();
+                }
             }
             
             
