@@ -91,7 +91,7 @@ namespace regex {
                     dataOut += Encoding.ASCII.GetString(dataIn, 0, bytesIn);
 
                     int idxLastNewLine = dataOut.LastIndexOf('\n');
-                    if ( ( idxLastNewLine >= 0 ) && ( ( idxLastNewLine + 1 ) < dataOut.Length ) ) {
+                    if ( ( idxLastNewLine >= 0 ) && ( ( idxLastNewLine + 1 ) <= dataOut.Length ) ) {
                         
                         /* Prepare data chunk to regex analyze */
                         string fullLines = dataOut.Substring(0, idxLastNewLine + 1);
