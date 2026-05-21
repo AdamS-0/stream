@@ -1,10 +1,10 @@
 using System; 
 public class vn { 
-    public const string BUILD_NUM  = "483"; 
+    public const string BUILD_NUM  = "497"; 
     public const string BUILD_YEAR = "26"; 
-    public const string BUILD_MON  = "04"; 
-    public const string BUILD_DAY  = "06"; 
-    public const string BUILD_HOUR = "14"; 
-    public const string BUILD_MIN  = "09"; 
+    public const string BUILD_MON  = "05"; 
+    public const string BUILD_DAY  = "21"; 
+    public const string BUILD_HOUR = "19"; 
+    public const string BUILD_MIN  = "20"; 
     public vn() {} 
 } 

@@ -117,5 +117,9 @@ namespace stream {
         [Parameter(ParameterAlias = "ttl", HelpText = "Time To Live, default 1",
                    ArgumentRequired = false)]
         public string ttl { get; set; }
+        
+        [Parameter(ParameterAlias = "s", HelpText = "Silent mode, '1' - no internal messages; when 2 - even without erros",
+               ArgumentName = "level", ArgumentRequired = false)]
+        public string silent { get; set; }
     }
 }
