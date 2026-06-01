@@ -97,6 +97,7 @@ namespace stream {
         
         // obsługa odbioru datagramów - UDP multicast
         private void ReceivedCallback(IAsyncResult ar) {
+            _stopWatch.Restart();
             try {
                 IPEndPoint sender = new IPEndPoint(0, 0);
                 byte[] dataIn = udpClient.EndReceive(ar, ref sender);
@@ -141,6 +142,7 @@ namespace stream {
                 udpClient.BeginReceive(new AsyncCallback(ReceivedCallback), null);
                 
                 _isConnected = true;
+                _stopWatch.Restart();
             } catch (Exception ex) {
                 ReportInternalMessage(InterenalMessageType.Error, "MUDP.DataRxCallback",
                   ex.Message );

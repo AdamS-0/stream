@@ -148,6 +148,7 @@ namespace stream {
                     tcp.Client.SetSocketOption(SocketOptionLevel.IP, SocketOptionName.IpTimeToLive, ttl);
                     
                     _isConnected = true;
+                    _stopWatch.Restart();
                     tcp.Client.BeginReceive(state.buffer, 0, bufSize, SocketFlags.None, new AsyncCallback(ReceivedCallback), state);
                 }
             } catch (Exception ex) {
@@ -168,6 +169,7 @@ namespace stream {
         }
         
         private void ReceivedCallback(IAsyncResult ar) {
+            _stopWatch.Restart();
             try {
                 State so = (State)ar.AsyncState;
                 int bytes = tcp.Client.EndReceiveFrom(ar, ref epFrom);

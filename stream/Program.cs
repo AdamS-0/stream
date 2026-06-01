@@ -129,6 +129,7 @@ namespace stream {
                 tryToReconnect = true;
             }
             
+            conn.SetRxTimeout( 10000 );
             /* Correct parameters. Openning connection... */
             conn.DataReceived += DataReceived;
             bool cmdExecuted = false;
@@ -198,9 +199,15 @@ namespace stream {
             TimeSpan duration;
             string strDuration = "";
             
+            byte[] connDropTrigger = new byte[1]{ 0x00 };
+            
             do {
                 try {
-                    if( !conn.IsConnected() ) {
+                    
+                    if ( conn.Timeouted() ) {
+                        /* No new data in given timeout, so try to send one byte to check connection status */
+                        conn.Send( ref connDropTrigger, connDropTrigger.Length );
+                    } else if( !conn.IsConnected() ) {
                         if( fisrIterAfterDisconnect ) {
                             fisrIterAfterDisconnect = false;
                             dtStart = DateTime.Now;
@@ -415,7 +422,6 @@ namespace stream {
                 reportedInternalMessage(InterenalMessageType.Warning, "stream", "Unknown command '" + cmd + "'", true);
                 return true;
             }
-            return false;
         }
         
         

@@ -125,6 +125,7 @@ namespace stream {
         
         
         private void DataReceivedHandler(object sender, SerialDataReceivedEventArgs e) {
+            _stopWatch.Restart();
             try {
                 SerialPort sp = (SerialPort)sender;
                 int bytesToRead = sp.BytesToRead;
@@ -146,6 +147,7 @@ namespace stream {
                 _sp.DataReceived += DataReceivedHandler;
                 _sp.Open();
                 _isConnected = true;
+                _stopWatch.Restart();
             } catch (Exception ex) {
                 Console.Write(ex.Message);
                 _isConnected = false;

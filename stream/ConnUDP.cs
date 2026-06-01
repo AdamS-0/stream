@@ -124,7 +124,7 @@ namespace stream {
                 }
                 
                 _isConnected = true;
-                
+                _stopWatch.Restart();
                 _socket.BeginReceiveFrom(state.buffer, 0, bufSize, SocketFlags.None,
                              ref epFrom, new AsyncCallback(ReceivedCallback), state);
             } catch (Exception ex) {
@@ -139,6 +139,7 @@ namespace stream {
         }
         
         private void ReceivedCallback(IAsyncResult ar) {
+            _stopWatch.Restart();
             try {
                 State so = (State)ar.AsyncState;
                 int bytes = _socket.EndReceiveFrom(ar, ref epFrom);
