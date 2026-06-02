@@ -31,5 +31,8 @@ namespace regex {
         [Parameter(ParameterAlias = "s", HelpText = "Silent mode, with no messages from this application")]
         public string silent{ get; set; }
         
+        [Parameter(ParameterAlias = "b", HelpText = "Size of the buffer (default 65536). Should be set to 110% of max sentence length")]
+        public string buffSize{ get; set; }
+        
     }
 }

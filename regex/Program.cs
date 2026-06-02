@@ -22,6 +22,8 @@ namespace regex {
         
         static List<patRepl> _patterns = new List<patRepl>();
         
+        static int maxBufferLengthLimit = 65536;
+        
         public static void Main ( string[] args ) {
             List<string> newArgs = new List<string>();
             
@@ -41,6 +43,7 @@ namespace regex {
                         }
                         
                         _patterns.Add(ptrn);
+                        ptrn.RebuildRegex();
                         idxArg += 1;
                     }
                 } else {
@@ -62,7 +65,6 @@ namespace regex {
                 log.reportMsg(logger.InterenalMessageType.Error, "Main", "Patterns not found");
                 return;
             }
-
             
             if ( !_silentMode ) {
                 log.reportMsg(logger.InterenalMessageType.Info, "Main", "Used regex:");
@@ -74,67 +76,128 @@ namespace regex {
                 ptrn.replacement = prepareReplacement(ptrn.replacement);
             }
             
+            if ( opt.buffSize != null ) {
+                int nexMaxBuffSize = 0;
+                int.TryParse( opt.buffSize, out nexMaxBuffSize );
+                if ( nexMaxBuffSize > 0 ) {
+                    maxBufferLengthLimit = nexMaxBuffSize;
+                }
+            }
+            
+            log.reportMsg(logger.InterenalMessageType.Info, "Main", "BufferSize:" + maxBufferLengthLimit);
+            
+            parseStream(ref opt, ref _patterns);
+            
+        }
+        
+        static void parseStream(ref Options opt, ref List<patRepl> patterns) {
             byte[]  dataIn  = new byte[1024];
             int     bytesIn = 0;
-            string  dataOut = "";
-            int     lenFreeSpaceInBuff = dataIn.Length;
+            string strBlockIn = "";
             
             using (Stream strmIn = Console.OpenStandardInput()) {
                 while (true) {
-                    bytesIn = strmIn.Read(dataIn, 0, 1024);
-                    
-                    if (bytesIn <= 0) {
-                        Thread.Sleep(10);
+                    if ( ( bytesIn = strmIn.Read(dataIn, 0, 1024) ) <= 0 ) {
+                        Thread.Sleep( 10 );
                         continue;
                     }
+                    /* New data available */
+                    strBlockIn += Encoding.ASCII.GetString(dataIn, 0, bytesIn);
                     
-                    dataOut += Encoding.ASCII.GetString(dataIn, 0, bytesIn);
-
-                    int idxLastNewLine = dataOut.LastIndexOf('\n');
-                    if ( ( idxLastNewLine >= 0 ) && ( ( idxLastNewLine + 1 ) <= dataOut.Length ) ) {
-                        
-                        /* Prepare data chunk to regex analyze */
-                        string fullLines = dataOut.Substring(0, idxLastNewLine + 1);
-                        if ( ( idxLastNewLine + 1 ) < dataOut.Length ) {
-                            dataOut = dataOut.Substring(idxLastNewLine + 1);
-                        } else {
-                            dataOut = "";
+                    /* Parse whole data block */
+                    parseDataBlock(ref opt, ref patterns, ref strBlockIn);
+                    
+                    /* Trim from the left main input string block to lowest farrest index of found matches */
+                    int lowestFarrestIdxMatch = getLowestFarrestIdxMatch(ref patterns, strBlockIn.Length);
+                    
+                    if ( ( lowestFarrestIdxMatch > 0 ) && ( lowestFarrestIdxMatch < strBlockIn.Length ) ) {
+                        /* Trim left of already found data block */
+                        strBlockIn = strBlockIn.Substring( lowestFarrestIdxMatch );
+                        /* Update every farrestIdxMatch by moving to the left by trim length */
+                        foreach( patRepl ptrn in patterns ) {
+                            ptrn.lastFarrestIdxMatch -= lowestFarrestIdxMatch;
                         }
-                        
-                        
-                        foreach( patRepl ptrn in _patterns ) {
-                            if ( ptrn.replacement == null ) { ptrn.replacement = ""; }
-                            
-                            if ( ptrn.replacement.Length > 0 ) {
-                                if ( opt.filter == null ) {
-                                    string fullLines2 = Regex.Replace(fullLines, ptrn.pattern, ptrn.replacement, RegexOptions.Multiline);
-                                    Console.Write( fullLines2 );
-                                } else {
-                                    MatchCollection matches = Regex.Matches(fullLines, ptrn.pattern, RegexOptions.Multiline);
-                                    foreach( Match m in matches ) {
-                                        if ( !m.Success ) { continue; }
-                                        string filteredReplaced = Regex.Replace(m.Groups[0].Value, ptrn.pattern, ptrn.replacement, RegexOptions.Multiline);
-                                        Console.Write( filteredReplaced );
-                                    }
-                                }
-                            } else {
-                                MatchCollection matches = Regex.Matches(fullLines, ptrn.pattern, RegexOptions.Multiline);
-                                foreach( Match m in matches ) {
-                                    if ( m.Success ) {
-                                        Console.Write( m.Value );
-                                    }
-                                }
-                            }
-                            
-                        }
-                        
+                    }
+                }
+            }
+        }
+        
+        static int getLowestFarrestIdxMatch(ref List<patRepl> patterns, int blockInLength) {
+            int lowestFarrestIdxMatch = blockInLength;
+            int lowestFarrestIdxMatchGratherThan0 = blockInLength;
+            
+            foreach( patRepl ptrn in patterns ) {
+                if ( lowestFarrestIdxMatch > ptrn.lastFarrestIdxMatch ) {
+                    lowestFarrestIdxMatch = ptrn.lastFarrestIdxMatch;
+                    if ( lowestFarrestIdxMatch > 0 ) {
+                        lowestFarrestIdxMatchGratherThan0 = lowestFarrestIdxMatch;
                     }
                 }
             }
             
+            if ( ( lowestFarrestIdxMatch == 0 ) && ( blockInLength >= maxBufferLengthLimit ) ) {
+                /* Buffer to large. Trim to lowest farrestIdxMatch, but grather than 0 */
+                if ( lowestFarrestIdxMatchGratherThan0 == blockInLength ) {
+                    lowestFarrestIdxMatchGratherThan0 = blockInLength / 10;
+                }
+                lowestFarrestIdxMatch = lowestFarrestIdxMatchGratherThan0;
+            }
             
+            return lowestFarrestIdxMatch;
         }
         
+        static void parseDataBlock(ref Options opt, ref List<patRepl> patterns, ref string strBlockIn) {
+            string strBlockOut = "";
+            string strBlockOutL = "";
+            
+            foreach( patRepl ptrn in patterns ) {
+                /* Get substring from second char of last match */
+                if ( ( ptrn.lastFarrestIdxMatch + 1 ) >= strBlockIn.Length ) { continue; }
+                
+                /* Safety check for null replacements */
+                if ( ptrn.replacement == null ) { ptrn.replacement = ""; }
+                
+                strBlockOut = "";
+                if ( ptrn.replacement.Length > 0 ) {
+                    /* Pattern required to be replaced with replacement */
+                    if ( opt.filter == null ) {
+                        /* No filtering, just replacement in text block */
+                        MatchCollection matches = ptrn.rgx.Matches(strBlockIn, ptrn.lastFarrestIdxMatch);
+                        foreach( Match m in matches ) {
+                            if ( !m.Success ) { continue; }
+                            int blockLen = m.Index - ptrn.lastFarrestIdxMatch;
+                            strBlockOutL = strBlockIn.Substring(ptrn.lastFarrestIdxMatch, blockLen);
+                            strBlockOut += strBlockOutL + ptrn.rgx.Replace(m.Groups[0].Value, ptrn.replacement);
+                            ptrn.lastFarrestIdxMatch = m.Index + m.Length;
+                        }
+                    } else {
+                        MatchCollection matches = ptrn.rgx.Matches(strBlockIn, ptrn.lastFarrestIdxMatch);
+                        /* Get only correct patterns and replace them in given way */
+                        foreach( Match m in matches ) {
+                            if ( !m.Success ) { continue; }
+                            strBlockOut += ptrn.rgx.Replace( m.Groups[0].Value, ptrn.replacement );
+                            
+                            ptrn.lastFarrestIdxMatch = m.Index + m.Length;
+                        }
+                    }
+                } else {
+                    /* Get only correct patterns, drop everything else */
+                    MatchCollection matches = ptrn.rgx.Matches(strBlockIn, ptrn.lastFarrestIdxMatch);
+                    foreach( Match m in matches ) {
+                        if ( !m.Success ) { continue; }
+                        
+                        strBlockOut += m.Value;
+                        ptrn.lastFarrestIdxMatch = m.Index + m.Length;
+                    }
+                }
+                
+                if ( strBlockOut.Length > 0 ) {
+                    /* There is something to print out */
+                    Console.Write( strBlockOut );
+                    strBlockOut = "";
+                }
+            }
+        }
         
         static char CharToEscapeSequence(char cIn) {
             char cOut = '\0';
@@ -172,12 +235,20 @@ namespace regex {
         class patRepl {
             public string pattern = "";
             public string replacement = "";
+            public Regex rgx = new Regex("");
+            
+            public int lastFarrestIdxMatch = 0;
             
             public patRepl() {}
             
             public patRepl(string pattern, string replacement) {
                 this.pattern = pattern;
                 this.replacement = replacement;
+                RebuildRegex();
+            }
+            
+            public void RebuildRegex() {
+                this.rgx = new Regex( this.pattern, RegexOptions.Compiled | RegexOptions.Multiline );
             }
             
             public override string ToString () {
