@@ -143,11 +143,10 @@ namespace stream {
             try {
                 State so = (State)ar.AsyncState;
                 int bytes = _socket.EndReceiveFrom(ar, ref epFrom);
-    //            _socket.BeginReceiveFrom(so.buffer, 0, bufSize, SocketFlags.None, ref epFrom, recv, so);
-                _socket.BeginReceive(state.buffer, 0, bufSize, SocketFlags.None, new AsyncCallback(ReceivedCallback), state);
                 if( this.DataReceived != null ) {
                     this.DataReceived(ref state.buffer, bytes);
                 }
+                _socket.BeginReceive(state.buffer, 0, bufSize, SocketFlags.None, new AsyncCallback(ReceivedCallback), state);
                 _isConnected = true;
             } catch (Exception ex) {
                 ReportInternalMessage(InterenalMessageType.Error, "UDP.DataRxCallback", ex.Message);

@@ -173,10 +173,10 @@ namespace stream {
             try {
                 State so = (State)ar.AsyncState;
                 int bytes = tcp.Client.EndReceiveFrom(ar, ref epFrom);
-                tcp.Client.BeginReceive(state.buffer, 0, bufSize, SocketFlags.None, new AsyncCallback(ReceivedCallback), state);
                 if( this.DataReceived != null ) {
                     this.DataReceived(ref state.buffer, bytes);
                 }
+                tcp.Client.BeginReceive(state.buffer, 0, bufSize, SocketFlags.None, new AsyncCallback(ReceivedCallback), state);
                 _isConnected = true;
             } catch (Exception ex) {
                 tcp.Close();
