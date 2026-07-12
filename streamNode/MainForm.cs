@@ -40,18 +40,23 @@ namespace streamNode {
         }
         
         void DataReceived(object sender, ref byte[] dataOut, int dataLen) {
+            /* Data just received from this conn */
+            
             /* Get object as connection panel */
             ConnPanel conPanel = sender as ConnPanel;
             
             /* If this connection is only out - skip this data */
             if( !conPanel.CanRead() ) { return; }
             
-            /* Send data to the local terminal */
-            Console.Write(System.Text.Encoding.GetEncoding("windows-1256").GetString(dataOut, 0, dataLen));
+            if ( tlStrpBtnDebugMode.Checked ) {
+                Console.WriteLine(
+                    "[" + DateTime.Now.ToString("yyyy.MM.dd-HH:mm:ss.ffffff") +
+                    "] PID#" + conPanel.GetProcId().ToString() + "\t, Rx: " + dataLen );
+            }
             
             /* Send data to other connections in this node */
             foreach( ConnPanel cp in conns ) {
-                /* Iff this is sender, skip it */
+                /* If this is sender, skip it */
                 if( cp == conPanel ) { continue; }
                 
                 /* If writing was disabled, skip loop */
@@ -59,14 +64,8 @@ namespace streamNode {
                 
                 try {
                     cp.Send(ref dataOut, dataLen);
-                } catch { Console.WriteLine("======"); }
+                } catch { }
             }
-        }
-        
-        
-        
-        void PrintDataToTerminal() {
-            
         }
         
         void MainFormFormClosing(object sender, FormClosingEventArgs e) {

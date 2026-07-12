@@ -16,17 +16,14 @@ namespace streamNode {
     [XmlType("NodeCfgConn")]
     public class NodeCfgConn {
         
-        [XmlElement("Name")]
-        public string name;
-        
         [XmlElement("AllowIn")]
         public bool allowIn;
         
         [XmlElement("AllowOut")]
         public bool allowOut;
         
-        [XmlElement("StreamCfg")]
-        public string streamCfg;
+        [XmlElement("Command")]
+        public string command;
     }
     
     [Serializable, XmlRoot("NodeCfg")]
