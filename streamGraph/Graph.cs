@@ -18,7 +18,8 @@ namespace streamGraph {
     /// Description of Graph.
     /// </summary>
     public partial class Graph : Form {
-        
+        PropertyEditorForm _propEditor = new PropertyEditorForm();
+            
         int NSamples = 100;
         string _pattern = "test(.*)";
         string _graphName = "";
@@ -162,6 +163,18 @@ namespace streamGraph {
 
         void AlwaysOnTopToolStripMenuItemCheckedChanged(object sender, EventArgs e) {
             this.TopMost = alwaysOnTopToolStripMenuItem.Checked;
+        }
+        
+        void BorderToolStripMenuItemCheckedChanged ( object sender, EventArgs e ) {
+            this.FormBorderStyle = borderToolStripMenuItem.Checked ? FormBorderStyle.SizableToolWindow : FormBorderStyle.None;
+        }
+        
+        void PropertyExplorerToolStripMenuItemCheckedChanged ( object sender, EventArgs e ) {
+            if ( propertyExplorerToolStripMenuItem.Checked ) {
+                _propEditor.ShowPropertyOf( plot1 );
+            } else {
+                _propEditor.Hide();
+            }
         }
     }
 }

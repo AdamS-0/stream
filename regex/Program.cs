@@ -91,13 +91,14 @@ namespace regex {
         }
         
         static void parseStream(ref Options opt, ref List<patRepl> patterns) {
-            byte[]  dataIn  = new byte[1024];
+            int buffInSize = 65535;
+            byte[]  dataIn  = new byte[buffInSize];
             int     bytesIn = 0;
             string strBlockIn = "";
             
             using (Stream strmIn = Console.OpenStandardInput()) {
                 while (true) {
-                    if ( ( bytesIn = strmIn.Read(dataIn, 0, 1024) ) <= 0 ) {
+                    if ( ( bytesIn = strmIn.Read(dataIn, 0, buffInSize) ) <= 0 ) {
                         Thread.Sleep( 10 );
                         continue;
                     }

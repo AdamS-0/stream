@@ -17,6 +17,8 @@ namespace streamGraph
         private VisBox.Plot plot1;
         private System.Windows.Forms.ContextMenuStrip cntxMn1;
         private System.Windows.Forms.ToolStripMenuItem alwaysOnTopToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem borderToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem propertyExplorerToolStripMenuItem;
         
         /// <summary>
         /// Disposes resources used by the form.
@@ -43,6 +45,8 @@ namespace streamGraph
             this.plot1 = new VisBox.Plot();
             this.cntxMn1 = new System.Windows.Forms.ContextMenuStrip(this.components);
             this.alwaysOnTopToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.borderToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.propertyExplorerToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.cntxMn1.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -61,9 +65,11 @@ namespace streamGraph
             // cntxMn1
             // 
             this.cntxMn1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.alwaysOnTopToolStripMenuItem});
+            this.alwaysOnTopToolStripMenuItem,
+            this.borderToolStripMenuItem,
+            this.propertyExplorerToolStripMenuItem});
             this.cntxMn1.Name = "cntxMn1";
-            this.cntxMn1.Size = new System.Drawing.Size(159, 48);
+            this.cntxMn1.Size = new System.Drawing.Size(167, 92);
             // 
             // alwaysOnTopToolStripMenuItem
             // 
@@ -71,9 +77,27 @@ namespace streamGraph
             this.alwaysOnTopToolStripMenuItem.CheckOnClick = true;
             this.alwaysOnTopToolStripMenuItem.CheckState = System.Windows.Forms.CheckState.Checked;
             this.alwaysOnTopToolStripMenuItem.Name = "alwaysOnTopToolStripMenuItem";
-            this.alwaysOnTopToolStripMenuItem.Size = new System.Drawing.Size(158, 22);
+            this.alwaysOnTopToolStripMenuItem.Size = new System.Drawing.Size(166, 22);
             this.alwaysOnTopToolStripMenuItem.Text = "Always on top";
             this.alwaysOnTopToolStripMenuItem.CheckedChanged += new System.EventHandler(this.AlwaysOnTopToolStripMenuItemCheckedChanged);
+            // 
+            // borderToolStripMenuItem
+            // 
+            this.borderToolStripMenuItem.Checked = true;
+            this.borderToolStripMenuItem.CheckOnClick = true;
+            this.borderToolStripMenuItem.CheckState = System.Windows.Forms.CheckState.Checked;
+            this.borderToolStripMenuItem.Name = "borderToolStripMenuItem";
+            this.borderToolStripMenuItem.Size = new System.Drawing.Size(166, 22);
+            this.borderToolStripMenuItem.Text = "Border";
+            this.borderToolStripMenuItem.CheckedChanged += new System.EventHandler(this.BorderToolStripMenuItemCheckedChanged);
+            // 
+            // propertyExplorerToolStripMenuItem
+            // 
+            this.propertyExplorerToolStripMenuItem.CheckOnClick = true;
+            this.propertyExplorerToolStripMenuItem.Name = "propertyExplorerToolStripMenuItem";
+            this.propertyExplorerToolStripMenuItem.Size = new System.Drawing.Size(166, 22);
+            this.propertyExplorerToolStripMenuItem.Text = "Property explorer";
+            this.propertyExplorerToolStripMenuItem.CheckedChanged += new System.EventHandler(this.PropertyExplorerToolStripMenuItemCheckedChanged);
             // 
             // Graph
             // 

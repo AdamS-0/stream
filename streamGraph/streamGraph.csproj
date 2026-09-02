@@ -78,6 +78,10 @@
     </Compile>
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="PropertyEditorForm.cs" />
+    <Compile Include="PropertyEditorForm.Designer.cs">
+      <DependentUpon>PropertyEditorForm.cs</DependentUpon>
+    </Compile>
     <Compile Include="vn.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -86,6 +90,9 @@
   <ItemGroup>
     <EmbeddedResource Include="Graph.resx">
       <DependentUpon>Graph.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="PropertyEditorForm.resx">
+      <DependentUpon>PropertyEditorForm.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
