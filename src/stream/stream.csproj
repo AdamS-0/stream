@@ -12,6 +12,7 @@
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <NoWin32Manifest>False</NoWin32Manifest>
     <RunCodeAnalysis>False</RunCodeAnalysis>
+    <RunPostBuildEvent>OnBuildSuccess</RunPostBuildEvent>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Platform)' == 'AnyCPU' ">
     <PlatformTarget>x86</PlatformTarget>
@@ -35,7 +36,7 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="CommandLineParser">
-      <HintPath>..\CommandLineParser.dll</HintPath>
+      <HintPath>..\..\CommandLineParser.dll</HintPath>
     </Reference>
     <Reference Include="Microsoft.CSharp">
       <RequiredTargetFramework>4.0</RequiredTargetFramework>
@@ -73,6 +74,6 @@
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
-    <PreBuildEvent>vn.bat</PreBuildEvent>
+    <PreBuildEvent>$(SolutionDir)/src/vn.bat</PreBuildEvent>
   </PropertyGroup>
 </Project>
