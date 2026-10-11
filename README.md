@@ -21,7 +21,8 @@ To check for accessibility of given CP, you can simply type:\
 Which should gives output like this:\
 ![stream -c -l](imgs/stream_listCp.jpg)
 
-As you can see, comm0com is pretty useful here. Lets establish connection between COM90 & COM91 @ 115200:\
+As you can see, com0com is pretty useful here. Free COM ports were marked as green one, and currently opened by other apps as red ones.\
+Lets establish connection between COM90 & COM91 @ 115200:\
 ```stream -b 115200 -c COM90``` and in the second terminal ```stream -r -b 115200 -c 91```
 
 There are two ways to give a Com port number, by full name "COM90" or by its number "91".
@@ -37,6 +38,9 @@ According to "help" of the stream available by calling: ```stream``` or ```strea
 ![stream server + two clients](imgs/stream_help.jpg)
 
 Lets test that out. There is one server and two clients:\
+```stream -t --address 127.0.0.1 --port 50001 -sv```\
+```stream -t -a 127.0.0.1 -p 50001 -cl```\
+```stream -t -a 127.0.0.1 -p 50001 -cl -ttl 0```\
 ![stream server + two clients](imgs/stream_tcp_example.jpg)
 
 Reconnect parameter was not set, but stream, always try to reconnect to server/client at least once.\
@@ -46,6 +50,7 @@ Stream always works in multi-client architecture. Whats more, the TTL parameter 
 To earn some time, aliases were added!\
 List of aliases is accessible by ```stream -as -l```. You can save/modify/clear aliases by parameters ```--save``` and ```-clear```.\
 To save new alias just simply add ```--save -as [ALIAS_NAME]``` somewhere in the command line:\
+```stream --save -as myTcpClient -t -a 127.0.0.1 -p 50001 -cl -ttl 0```\
 ![stream server + two clients](imgs/stream_aliases.jpg)
 
 ### hexdump
