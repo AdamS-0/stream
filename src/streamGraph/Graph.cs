@@ -78,21 +78,22 @@ namespace streamGraph {
                 }
             }
             
-//            ser1.Pen.Color = Color.Gold;
+            plot1.gridX.Autoscale = true;
+            plot1.gridX.LineColor = Color.DimGray;
+            plot1.AxisLimitsX.Autoscale = true;
             
             plot1.ColorInner = Color.Black;
             plot1.gridY.Pen.Color = Color.Green;
-            plot1.AxisLimitsY.Min = -.4f;
-            plot1.AxisLimitsY.Max = 1.1f;
-            plot1.AxisLimitsY.Use = false;
-            plot1.AxisLimitsY.Margin = 0.1f;
+            plot1.AxisLimitsY.Autoscale = false;
             plot1.gridY.Dots = new List<VisBox.GridDot> { new VisBox.GridDot(0, "zero"), new VisBox.GridDot(1, "One"), new VisBox.GridDot(-.1f, "negative") };
             plot1.gridY.Format = "0.000";
             plot1.gridY.LabelBrush = new SolidBrush(Color.Orange);
-            
+            plot1.gridY.ShowLables = true;
+            plot1.gridY.Autoscale = true;
             
             plot1.gridYminor.GridOn = true;
-            plot1.gridYminor.ScaleFactor = 0.5f;
+            plot1.gridYminor.Autoscale = true;
+            plot1.gridYminor.ScaleFactor = 0.25f;
             plot1.gridYminor.ShowLables = false;
             
         }
@@ -152,6 +153,32 @@ namespace streamGraph {
                 }
             }
             
+            if ( dataYs.Count > 0 ) {
+                if ( dataYs[0].Count > 0 ) {
+                    float valMin = 0, valMax = 0;
+                    
+                    valMin = valMax = dataYs[0][0];
+                    /* Get maxs & mins */
+                    for( int idxSer = 0; idxSer < dataYs.Count; idxSer++ ) {
+                        for( int idx = 0; idx < (NSamples - 1); idx++ ) {
+                            dataYs[idxSer][idx] = dataYs[idxSer][idx + 1];
+                            if ( valMin > dataYs[idxSer][idx] ) {
+                                valMin = dataYs[idxSer][idx];
+                            }
+                            
+                            if ( valMax < dataYs[idxSer][idx] ) {
+                                valMax = dataYs[idxSer][idx];
+                            }
+                        }
+                    }
+                    
+                    float deltaVal = Math.Abs( valMax - valMin );
+                    valMin -= 0.1f*deltaVal;
+                    valMax += 0.1f*deltaVal;
+                    plot1.AxisLimitsY.Min = valMin;
+                    plot1.AxisLimitsY.Max = valMax;
+                }
+            }
             
         }
         

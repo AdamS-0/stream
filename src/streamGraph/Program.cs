@@ -30,33 +30,18 @@ namespace streamGraph {
             
             Graph gr = new Graph( opt.pattern, Convert.ToInt32(opt.nSamples), opt.name );
             
-            Thread th = new Thread(() => {
-                                       gr.ShowDialog();
-//                Application.EnableVisualStyles();
-//                Application.SetCompatibleTextRenderingDefault(false);
-//                Application.Run(gr);
-            } );
+            Thread th = new Thread(() => { gr.ShowDialog(); } );
             
             th.SetApartmentState(ApartmentState.STA);
             th.Start();
             
             byte[] dataIn = new byte[1024];
-            int len2copy = 0;
-            
             string strIn = "";
             
             while( true ) {
                 strIn = Console.ReadLine();
                 gr.DataReceived( Encoding.Default.GetBytes(strIn) );
             }
-            
-//            using( Stream inStream = Console.OpenStandardInput() ) {
-//                Thread.Sleep(10);
-//                while( (len2copy = inStream.Read(dataIn, 0, 1024)) > 0 ) {
-//                    gr.DataReceived( dataIn );
-//                }
-//            }
-            
         }
         
     }
