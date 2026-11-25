@@ -58,6 +58,7 @@
   <ItemGroup>
     <Compile Include="Alias.cs" />
     <Compile Include="AppInfo.cs" />
+    <Compile Include="BufferedFileWriter.cs" />
     <Compile Include="Connection.cs" />
     <Compile Include="ConnMulticastUDP.cs" />
     <Compile Include="ConnSerialPort.cs" />

@@ -51,6 +51,8 @@ namespace stream {
         [Parameter(ParameterAlias = "nc", HelpText = "Do not use colors", ArgumentRequired = false)]
         public string noColors { get; set; }
         
+        [Parameter(ParameterAlias = "nrt", HelpText = "Do not check connection by sending '0x00' each after 1 s", ArgumentRequired = false)]
+        public string noRxTimeout { get; set; }
         
         [Parameter(ParameterAlias = "c", HelpText = "Serial port connection",
                    ArgumentName = "COM port", ArgumentRequired = false)]

@@ -53,6 +53,11 @@ namespace stream {
          * stream<<{command}:[params]*/
         static string commandPrompter = "stream<<";
         
+        static bool nowSendingFile = false;
+        static BufferedFileWriter logger;
+        
+        static bool noRxTimeout = true;
+        
         public static void Main(string[] args) {
             byte[] dataOut = new byte[1024];
             int len2copy = 0;
@@ -69,6 +74,7 @@ namespace stream {
             }
             
             if( opt.noColors != null ) { useColors = false; }
+            if( opt.noRxTimeout != null ) { noRxTimeout = true; }
             
             if ( silentMode == 0 ) {
                 int ret = reportedInternalMessage(InterenalMessageType.Info, "Main", "Initializing", false);
@@ -204,9 +210,11 @@ namespace stream {
             do {
                 try {
                     
-                    if ( conn.Timeouted() ) {
-                        /* No new data in given timeout, so try to send one byte to check connection status */
-                        conn.Send( ref connDropTrigger, connDropTrigger.Length );
+                    if ( conn.Timeouted() && !noRxTimeout ) {
+                        if ( !nowSendingFile ) {
+                            /* No new data in given timeout, so try to send one byte to check connection status */
+                            conn.Send( ref connDropTrigger, connDropTrigger.Length );
+                        }
                     } else if( !conn.IsConnected() ) {
                         if( fisrIterAfterDisconnect ) {
                             fisrIterAfterDisconnect = false;
@@ -252,6 +260,11 @@ namespace stream {
         public static void DataReceived(ref byte[] dataOut, int dataLen) {
             try {
                 strm.Write(dataOut, 0, dataLen);
+                try {
+                    if ( logger != null ) {
+                        logger.Write( dataOut, 0, dataLen );
+                    }
+                } catch {}
             } catch { }
         }
         
@@ -404,14 +417,56 @@ namespace stream {
                 
                 byte[] fileBytes = File.ReadAllBytes( filePath2Send );
                 
+                nowSendingFile = true;
                 if ( opt.baud != null ) {
                     int baudrate = Convert.ToInt32( opt.baud );
                     sendFileWithBaudrate(ref fileBytes, fileBytes.Length, baudrate);
                 } else {
                     conn.Send(ref fileBytes, fileBytes.Length);
                 }
+                nowSendingFile = false;
                 
                 reportedInternalMessage(InterenalMessageType.Info, "FileSender", "Send OK", true);
+                return true;
+            } else if ( cmd.Equals("log_stop") ) {
+                if ( logger != null ) {
+                    try {
+                        string logFileName = logger.FileName;
+                        logger.Dispose();
+                        logger = null;
+                        reportedInternalMessage(InterenalMessageType.Info, "FileLogger", "Stopped logging to file '" + logFileName + "'");
+                    } catch (Exception ex) {
+                        reportedInternalMessage(InterenalMessageType.Error, "FileLogger", ex.Message, true);
+                    }
+                } else {
+                    reportedInternalMessage(InterenalMessageType.Warning, "FileLogger", "Logger not activated");
+                }
+                return true;
+            } else if ( cmd.Equals("log_info") ) {
+                if ( logger != null ) {
+                    FileInfo fi = new FileInfo(logger.FileName);
+                    reportedInternalMessage(InterenalMessageType.Info, "FileLogger", "Logging to file '" + fi.FullName + "', " +
+                                            fi.Length.ToString("### ### ### ###") + " B");
+                } else {
+                    reportedInternalMessage(InterenalMessageType.Warning, "FileLogger", "Logger not activated");
+                }
+                return true;
+            } else if ( cmd.Equals("log") ) {
+                string filePath2log = new string(cmdData.Where(c => !char.IsControl(c)).ToArray());
+                
+                if ( logger != null ) {
+                    try {
+                        logger.Dispose();
+                        logger = null;
+                    } catch {}
+                }
+                
+                try {
+                    logger = new BufferedFileWriter( filePath2log, 5000 );
+                    reportedInternalMessage(InterenalMessageType.Info, "FileLogger", "Started logging to file '" + filePath2log + "'", true);
+                } catch (Exception ex) {
+                    reportedInternalMessage(InterenalMessageType.Error, "FileLogger", ex.Message, true);
+                }
                 return true;
             } else if ( cmd.Equals("send_hex") ) {
                 return sendHex( cmdData );
@@ -422,6 +477,7 @@ namespace stream {
                 reportedInternalMessage(InterenalMessageType.Warning, "stream", "Unknown command '" + cmd + "'", true);
                 return true;
             }
+            return false;
         }
         
         
